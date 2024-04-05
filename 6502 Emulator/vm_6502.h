@@ -1,7 +1,6 @@
 #pragma once
 #include <cstring>
 #include <iostream>
-#include <cassert>
 #include <map>
 #include <functional>
 
@@ -11,10 +10,14 @@
 
 // There are "set to" and "set if", which logically different, but now done as the same.
 
-using u8 = unsigned char;
-using u16 = unsigned short;
-using u32 = unsigned int;
-using i32 = int;
+using u8	= unsigned char;
+using u16	= unsigned short;
+using u32	= unsigned int;
+using u64	= unsigned long long;
+using i8	= char;
+using i16	= short;
+using i32	= int;
+using i64	= long long;
 
 constexpr u32 BIT_SIZE = 8;
 constexpr u32 MAX_RAM_BYTES = 65'536;
@@ -24,6 +27,8 @@ struct ram
 	u8* data = new u8[MAX_RAM_BYTES];
 
 	ram();
+
+	~ram();
 
 	void clear();
 
@@ -63,10 +68,10 @@ struct cpu
 	// fetches next byte, increments program counter
 	u8 next_byte();
 
-	// automatically offset for stack
+	// automatically offsets for stack
 	void push(u8 bt);
 
-	// automatically offset for stack
+	// automatically offsets for stack
 	u8 pull();
 
 	void exe_op(u8 op);
@@ -136,7 +141,30 @@ namespace op
 	constexpr u8 AND_IN_X	= 0x21;	// logical and - indirect, x
 	constexpr u8 AND_IN_Y	= 0x31;	// logical and - indirect, y
 
+	constexpr u8 EOR_IM		= 0x49;	// logical xor - immediate
+	constexpr u8 EOR_ZP		= 0x45;	// logical xor - zero page
+	constexpr u8 EOR_ZP_X	= 0x55;	// logical xor - zero page, x
+	constexpr u8 EOR_ABS	= 0x4D;	// logical xor - absolute
+	constexpr u8 EOR_ABS_X	= 0x5D;	// logical xor - absolute, x
+	constexpr u8 EOR_ABS_Y	= 0x59;	// logical xor - absolute, y
+	constexpr u8 EOR_IN_X	= 0x41;	// logical xor - indirect, x
+	constexpr u8 EOR_IN_Y	= 0x51;	// logical xor - indirect, y
+
+	constexpr u8 ORA_IM		= 0x09;	// logical or - immediate
+	constexpr u8 ORA_ZP		= 0x05;	// logical or - zero page
+	constexpr u8 ORA_ZP_X	= 0x15;	// logical or - zero page, x
+	constexpr u8 ORA_ABS	= 0x0D;	// logical or - absolute
+	constexpr u8 ORA_ABS_X	= 0x1D;	// logical or - absolute, x
+	constexpr u8 ORA_ABS_Y	= 0x19;	// logical or - absolute, y
+	constexpr u8 ORA_IN_X	= 0x01;	// logical or - indirect, x
+	constexpr u8 ORA_IN_Y	= 0x11;	// logical or - indirect, y
+
+	constexpr u8 BIT_ZP		= 0x24; // bit test - zero page
+	constexpr u8 BIT_ABS	= 0x2C; // bit test - absolute
+
 	// arithmetic
+	//constexpr u8 ADC
+	// see decimal mode
 
 	// increments & decrements
 

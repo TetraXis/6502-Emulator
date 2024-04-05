@@ -496,6 +496,192 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		}
 	},
 	{
+		op::EOR_IM,
+		[](cpu& c)
+		{
+			c.a ^= c.next_byte();
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::EOR_ZP,
+		[](cpu& c)
+		{
+			c.a ^= c.mem[c.next_byte()];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::EOR_ZP_X,
+		[](cpu& c)
+		{
+			c.a ^= c.mem[c.next_byte() + c.x];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::EOR_ABS,
+		[](cpu& c)
+		{
+			c.a ^= c.mem[NEXT_WORD];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::EOR_ABS_X,
+		[](cpu& c)
+		{
+			c.a ^= c.mem[NEXT_WORD + c.x];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::EOR_ABS_Y,
+		[](cpu& c)
+		{
+			c.a ^= c.mem[NEXT_WORD + c.y];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::EOR_IN_X,
+		[](cpu& c)
+		{
+			GET_INDIRECT_ADDR_X;
+			c.a ^= c.mem[CONCAT_ADDR];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::EOR_IN_Y,
+		[](cpu& c)
+		{
+			GET_INDIRECT_ADDR_Y;
+			c.a ^= c.mem[CONCAT_ADDR + c.y];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::ORA_IM,
+		[](cpu& c)
+		{
+			c.a |= c.next_byte();
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::ORA_ZP,
+		[](cpu& c)
+		{
+			c.a |= c.mem[c.next_byte()];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::ORA_ZP_X,
+		[](cpu& c)
+		{
+			c.a |= c.mem[c.next_byte() + c.x];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::ORA_ABS,
+		[](cpu& c)
+		{
+			c.a |= c.mem[NEXT_WORD];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::ORA_ABS_X,
+		[](cpu& c)
+		{
+			c.a |= c.mem[NEXT_WORD + c.x];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::ORA_ABS_Y,
+		[](cpu& c)
+		{
+			c.a |= c.mem[NEXT_WORD + c.y];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::ORA_IN_X,
+		[](cpu& c)
+		{
+			GET_INDIRECT_ADDR_X;
+			c.a |= c.mem[CONCAT_ADDR];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::ORA_IN_Y,
+		[](cpu& c)
+		{
+			GET_INDIRECT_ADDR_Y;
+			c.a |= c.mem[CONCAT_ADDR + c.y];
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80);
+			return;
+		}
+	},
+	{
+		op::BIT_ZP,
+		[](cpu& c)
+		{
+			u8 temp = c.mem[c.next_byte()];
+			c.z = ((c.a & temp) == 0);
+			c.v = (temp & 0b01000000);
+			c.n = (temp & 0b10000000);
+			return;
+		}
+	},
+	{
+		op::BIT_ABS,
+		[](cpu& c)
+		{
+			u8 temp = c.mem[NEXT_WORD];
+			c.z = ((c.a & temp) == 0);
+			c.v = (temp & 0b01000000);
+			c.n = (temp & 0b10000000);
+			return;
+		}
+	},
+	{
 		op::ASL_A,
 		[](cpu& c)
 		{

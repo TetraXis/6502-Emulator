@@ -5,6 +5,11 @@ ram::ram()
 	clear();
 }
 
+ram::~ram()
+{
+	delete data;
+}
+
 void ram::clear()
 {
 	memset(data, 0, MAX_RAM_BYTES);

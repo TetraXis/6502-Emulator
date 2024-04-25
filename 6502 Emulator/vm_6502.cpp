@@ -70,12 +70,12 @@ u8 cpu::next_byte()
 
 void cpu::push(u8 bt)
 {
-	mem[0x0100 + (sp--)] = bt;
+	mem[u16(0x0100) + (sp--)] = bt;
 }
 
 u8 cpu::pull()
 {
-	return mem[0x0100 + (++sp)];
+	return mem[u16(0x0100) + (++sp)];
 }
 
 void cpu::exe_op(u8 op)
@@ -94,5 +94,26 @@ void cpu::start(i32 operators)
 	for (u8 op = mem[pc]; operators > 0 && !k; op = next_byte(), operators--)
 	{
 		exe_op(op);
+	}
+}
+
+renderer::renderer(ram& mem_ref, u16 new_addr, HDC new_hdc, u16 new_size_x, u16 new_size_y, u8 new_scale_x, u8 new_scale_y)
+	: mem(mem_ref), addr(new_addr), hdc(new_hdc), size_x(new_size_x), size_y(new_size_y), scale_x(new_scale_x), scale_y(new_scale_y)
+{
+}
+
+void renderer::draw()
+{
+	for (u16 i = 0; i < size_x * size_y; i++)
+	{
+		//Rectangle(hdc, (i % size_x) * scale_x, (i / size_x) * scale_y, i % size_x, i / size_x, )
+		/*SetPixel(hdc, i % size_x, i / size_x,
+			RGB
+			(
+				((mem[addr + i] & 0b11100000) >> 5)	* 256 / 8,
+				((mem[addr + i] & 0b00011100) >> 2)	* 256 / 8,
+				(mem[addr + i] & 0b00000011)		* 256 / 4
+			)
+		);*/
 	}
 }

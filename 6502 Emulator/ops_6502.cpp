@@ -31,7 +31,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.next_byte();
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -41,7 +41,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.mem[c.next_byte()];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -51,7 +51,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.mem[u8(c.next_byte() + c.x)];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -61,7 +61,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.mem[NEXT_WORD];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -71,7 +71,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.mem[NEXT_WORD + c.x];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -81,7 +81,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.mem[NEXT_WORD + c.y];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -92,7 +92,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 			GET_INDIRECT_ADDR_X;
 			c.a = c.mem[CONCAT_ADDR];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -103,7 +103,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 			GET_INDIRECT_ADDR_Y;
 			c.a = c.mem[CONCAT_ADDR + c.y];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -171,7 +171,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.x = c.next_byte();
 			c.z = (c.x == 0);
-			c.n = (c.x & 0x80);
+			c.n = (c.x & 0x80) != 0;
 			return;
 		}
 	},
@@ -181,7 +181,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.x = c.mem[c.next_byte()];
 			c.z = (c.x == 0);
-			c.n = (c.x & 0x80);
+			c.n = (c.x & 0x80) != 0;
 			return;
 		}
 	},
@@ -191,7 +191,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.x = c.mem[c.next_byte() + c.y];
 			c.z = (c.x == 0);
-			c.n = (c.x & 0x80);
+			c.n = (c.x & 0x80) != 0;
 			return;
 		}
 	},
@@ -201,7 +201,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.x = c.mem[NEXT_WORD];
 			c.z = (c.x == 0);
-			c.n = (c.x & 0x80);
+			c.n = (c.x & 0x80) != 0;
 			return;
 		}
 	},
@@ -211,7 +211,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.x = c.mem[NEXT_WORD + c.y];
 			c.z = (c.x == 0);
-			c.n = (c.x & 0x80);
+			c.n = (c.x & 0x80) != 0;
 			return;
 		}
 	},
@@ -245,7 +245,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.y = c.next_byte();
 			c.z = (c.y == 0);
-			c.n = (c.y & 0x80);
+			c.n = (c.y & 0x80) != 0;
 			return;
 		}
 	},
@@ -255,7 +255,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.y = c.mem[c.next_byte()];
 			c.z = (c.y == 0);
-			c.n = (c.y & 0x80);
+			c.n = (c.y & 0x80) != 0;
 			return;
 		}
 	},
@@ -265,7 +265,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.y = c.mem[c.next_byte() + c.x];
 			c.z = (c.y == 0);
-			c.n = (c.y & 0x80);
+			c.n = (c.y & 0x80) != 0;
 			return;
 		}
 	},
@@ -275,7 +275,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.y = c.mem[NEXT_WORD];
 			c.z = (c.y == 0);
-			c.n = (c.y & 0x80);
+			c.n = (c.y & 0x80) != 0;
 			return;
 		}
 	},
@@ -285,7 +285,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.y = c.mem[NEXT_WORD + c.x];
 			c.z = (c.y == 0);
-			c.n = (c.y & 0x80);
+			c.n = (c.y & 0x80) != 0;
 			return;
 		}
 	},
@@ -319,7 +319,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.x = c.a;
 			c.z = (c.x == 0);
-			c.n = (c.x & 0x80);
+			c.n = (c.x & 0x80) != 0;
 			return;
 		}
 	},
@@ -329,7 +329,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.y = c.a;
 			c.z = (c.y == 0);
-			c.n = (c.y & 0x80);
+			c.n = (c.y & 0x80) != 0;
 			return;
 		}
 	},
@@ -339,7 +339,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.x;
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -349,7 +349,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.y;
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -359,7 +359,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.x = c.sp;
 			c.z = (c.x == 0);
-			c.n = (c.x & 0x80);
+			c.n = (c.x & 0x80) != 0;
 			return;
 		}
 	},
@@ -393,7 +393,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a = c.pull();
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -402,14 +402,14 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		[](cpu& c)
 		{
 			u8 temp = c.pull();
-			c.n = temp & (1 << 7);
-			c.v = temp & (1 << 6);
-			c.k = temp & (1 << 5);
-			c.b = temp & (1 << 4);
-			c.d = temp & (1 << 3);
-			c.i = temp & (1 << 2);
-			c.z = temp & (1 << 1);
-			c.c = temp & (1);
+			c.n = (temp & (1 << 7)) != 0;
+			c.v = (temp & (1 << 6)) != 0;
+			c.k = (temp & (1 << 5)) != 0;
+			c.b = (temp & (1 << 4)) != 0;
+			c.d = (temp & (1 << 3)) != 0;
+			c.i = (temp & (1 << 2)) != 0;
+			c.z = (temp & (1 << 1)) != 0;
+			c.c = (temp & (1)) != 0;
 			return;
 		}
 	},
@@ -419,7 +419,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a &= c.next_byte();
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -429,7 +429,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a &= c.mem[c.next_byte()];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -439,7 +439,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a &= c.mem[c.next_byte() + c.x];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -449,7 +449,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a &= c.mem[NEXT_WORD];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -459,7 +459,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a &= c.mem[NEXT_WORD + c.x];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -469,7 +469,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a &= c.mem[NEXT_WORD + c.y];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -480,7 +480,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 			GET_INDIRECT_ADDR_X;
 			c.a &= c.mem[CONCAT_ADDR];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -491,7 +491,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 			GET_INDIRECT_ADDR_Y;
 			c.a &= c.mem[CONCAT_ADDR + c.y];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -501,7 +501,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a ^= c.next_byte();
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -511,7 +511,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a ^= c.mem[c.next_byte()];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -521,7 +521,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a ^= c.mem[c.next_byte() + c.x];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -531,7 +531,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a ^= c.mem[NEXT_WORD];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -541,7 +541,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a ^= c.mem[NEXT_WORD + c.x];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -551,7 +551,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a ^= c.mem[NEXT_WORD + c.y];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -562,7 +562,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 			GET_INDIRECT_ADDR_X;
 			c.a ^= c.mem[CONCAT_ADDR];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -573,7 +573,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 			GET_INDIRECT_ADDR_Y;
 			c.a ^= c.mem[CONCAT_ADDR + c.y];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -583,7 +583,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a |= c.next_byte();
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -593,7 +593,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a |= c.mem[c.next_byte()];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -603,7 +603,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a |= c.mem[c.next_byte() + c.x];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -613,7 +613,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a |= c.mem[NEXT_WORD];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -623,7 +623,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a |= c.mem[NEXT_WORD + c.x];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -633,7 +633,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			c.a |= c.mem[NEXT_WORD + c.y];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -644,7 +644,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 			GET_INDIRECT_ADDR_X;
 			c.a |= c.mem[CONCAT_ADDR];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -655,7 +655,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 			GET_INDIRECT_ADDR_Y;
 			c.a |= c.mem[CONCAT_ADDR + c.y];
 			c.z = (c.a == 0);
-			c.n = (c.a & 0x80);
+			c.n = (c.a & 0x80) != 0;
 			return;
 		}
 	},
@@ -665,8 +665,8 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			u8 temp = c.mem[c.next_byte()];
 			c.z = ((c.a & temp) == 0);
-			c.v = (temp & 0b01000000);
-			c.n = (temp & 0b10000000);
+			c.v = (temp & 0b01000000) != 0;
+			c.n = (temp & 0b10000000) != 0;
 			return;
 		}
 	},
@@ -676,8 +676,520 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			u8 temp = c.mem[NEXT_WORD];
 			c.z = ((c.a & temp) == 0);
-			c.v = (temp & 0b01000000);
-			c.n = (temp & 0b10000000);
+			c.v = (temp & 0b01000000) != 0;
+			c.n = (temp & 0b10000000) != 0;
+			return;
+		}
+	},
+	{
+		op::ADC_IM,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.next_byte();
+			c.a += value + c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ((u16(prev_a) + value + c.c) & 0xFF00) != 0;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ADC_ZP,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[c.next_byte()];
+			c.a += value + c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ((u16(prev_a) + value + c.c) & 0xFF00) != 0;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ADC_ZP_X,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[c.next_byte() + c.x];
+			c.a += value + c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ((u16(prev_a) + value + c.c) & 0xFF00) != 0;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ADC_ABS,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[NEXT_WORD];
+			c.a += value + c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ((u16(prev_a) + value + c.c) & 0xFF00) != 0;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ADC_ABS_X,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[NEXT_WORD + c.x];
+			c.a += value + c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ((u16(prev_a) + value + c.c) & 0xFF00) != 0;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ADC_ABS_Y,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[NEXT_WORD + c.y];
+			c.a += value + c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ((u16(prev_a) + value + c.c) & 0xFF00) != 0;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ADC_IN_X,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			GET_INDIRECT_ADDR_X;
+			u8 value = c.mem[CONCAT_ADDR];
+			c.a += value + c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ((u16(prev_a) + value + c.c) & 0xFF00) != 0;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ADC_IN_Y,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			GET_INDIRECT_ADDR_Y;
+			u8 value = c.mem[CONCAT_ADDR + c.y];
+			c.a += value + c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ((u16(prev_a) + value + c.c) & 0xFF00) != 0;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::SBC_IM,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.next_byte();
+			c.a -= value + !c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ~c.v;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::SBC_ZP,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[c.next_byte()];
+			c.a -= value + !c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ~c.v;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::SBC_ZP_X,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[c.next_byte() + c.x];
+			c.a -= value + !c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ~c.v;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::SBC_ABS,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[NEXT_WORD];
+			c.a -= value + !c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ~c.v;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::SBC_ABS_X,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[NEXT_WORD + c.x];
+			c.a -= value + !c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ~c.v;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::SBC_ABS_Y,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			u8 value = c.mem[NEXT_WORD + c.y];
+			c.a -= value + !c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ~c.v;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::SBC_IN_X,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			GET_INDIRECT_ADDR_X;
+			u8 value = c.mem[CONCAT_ADDR];
+			c.a -= value + !c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ~c.v;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::SBC_IN_Y,
+		[](cpu& c)
+		{
+			u8 prev_a = c.a;
+			GET_INDIRECT_ADDR_Y;
+			u8 value = c.mem[CONCAT_ADDR + c.y];
+			c.a -= value + !c.c;
+			c.v = ( (prev_a ^ c.a) & (value ^ c.a) & 0x80 ) != 0;
+			c.c = ~c.v;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CMP_IM,
+		[](cpu& c)
+		{
+			u8 value = c.next_byte();
+			c.c = (c.a >= value);
+			c.z = (c.a == value);
+			c.n = ((c.a - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CMP_ZP,
+		[](cpu& c)
+		{
+			u8 value = c.mem[c.next_byte()];
+			c.c = (c.a >= value);
+			c.z = (c.a == value);
+			c.n = ((c.a - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CMP_ZP_X,
+		[](cpu& c)
+		{
+			u8 value = c.mem[c.next_byte() + c.x];
+			c.c = (c.a >= value);
+			c.z = (c.a == value);
+			c.n = ((c.a - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CMP_ABS,
+		[](cpu& c)
+		{
+			u8 value = c.mem[NEXT_WORD];
+			c.c = (c.a >= value);
+			c.z = (c.a == value);
+			c.n = ((c.a - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CMP_ABS_X,
+		[](cpu& c)
+		{
+			u8 value = c.mem[NEXT_WORD + c.x];
+			c.c = (c.a >= value);
+			c.z = (c.a == value);
+			c.n = ((c.a - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CMP_ABS_Y,
+		[](cpu& c)
+		{
+			u8 value = c.mem[NEXT_WORD + c.y];
+			c.c = (c.a >= value);
+			c.z = (c.a == value);
+			c.n = ((c.a - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CMP_IN_X,
+		[](cpu& c)
+		{
+			GET_INDIRECT_ADDR_X;
+			u8 value = c.mem[CONCAT_ADDR];
+			c.c = (c.a >= value);
+			c.z = (c.a == value);
+			c.n = ((c.a - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CMP_IN_Y,
+		[](cpu& c)
+		{
+			GET_INDIRECT_ADDR_Y;
+			u8 value = c.mem[CONCAT_ADDR + c.y];
+			c.c = (c.a >= value);
+			c.z = (c.a == value);
+			c.n = ((c.a - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CPX_IM,
+		[](cpu& c)
+		{
+			u8 value = c.next_byte();
+			c.c = (c.x >= value);
+			c.z = (c.x == value);
+			c.n = ((c.x - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CPX_ZP,
+		[](cpu& c)
+		{
+			u8 value = c.mem[c.next_byte()];
+			c.c = (c.x >= value);
+			c.z = (c.x == value);
+			c.n = ((c.x - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CPX_ABS,
+		[](cpu& c)
+		{
+			u8 value = c.mem[NEXT_WORD];
+			c.c = (c.x >= value);
+			c.z = (c.x == value);
+			c.n = ((c.x - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CPY_IM,
+		[](cpu& c)
+		{
+			u8 value = c.next_byte();
+			c.c = (c.y >= value);
+			c.z = (c.y == value);
+			c.n = ((c.y - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CPY_ZP,
+		[](cpu& c)
+		{
+			u8 value = c.mem[c.next_byte()];
+			c.c = (c.y >= value);
+			c.z = (c.y == value);
+			c.n = ((c.y - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::CPY_ABS,
+		[](cpu& c)
+		{
+			u8 value = c.mem[NEXT_WORD];
+			c.c = (c.y >= value);
+			c.z = (c.y == value);
+			c.n = ((c.y - value) & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::INC_ZP,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte()];
+			++addr;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::INC_ZP_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte() + c.x];
+			++addr;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::INC_ABS,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD];
+			++addr;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::INC_ABS,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD + c.x];
+			++addr;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::INX,
+		[](cpu& c)
+		{
+			++c.x;
+			c.z = (c.x == 0);
+			c.n = (c.x & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::INY,
+		[](cpu& c)
+		{
+			++c.y;
+			c.z = (c.y == 0);
+			c.n = (c.y & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::DEC_ZP,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte()];
+			--addr;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::DEC_ZP_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte() + c.x];
+			--addr;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::DEC_ABS,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD];
+			--addr;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::DEC_ABS,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD + c.x];
+			--addr;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::DEX,
+		[](cpu& c)
+		{
+			--c.x;
+			c.z = (c.x == 0);
+			c.n = (c.x & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::DEY,
+		[](cpu& c)
+		{
+			--c.y;
+			c.z = (c.y == 0);
+			c.n = (c.y & 0x80) != 0;
 			return;
 		}
 	},
@@ -685,10 +1197,255 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		op::ASL_A,
 		[](cpu& c)
 		{
-			c.c = c.a & 0x80;
+			c.c = (c.a & 0x80) != 0;
 			c.a <<= 1;
 			c.z = (c.a == 0);
-			c.n = c.a & 0x80;
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ASL_ZP,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte()];
+			c.c = (addr & 0x80) != 0;
+			addr <<= 1;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ASL_ZP_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte() + c.x];
+			c.c = (addr & 0x80) != 0;
+			addr <<= 1;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ASL_ABS,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD];
+			c.c = (addr & 0x80) != 0;
+			addr <<= 1;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ASL_ABS_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD + c.x];
+			c.c = (addr & 0x80) != 0;
+			addr <<= 1;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::LSR_A,
+		[](cpu& c)
+		{
+			c.c = (c.a & 0x01) != 0;
+			c.a >>= 1;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::LSR_ZP,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte()];
+			c.c = (addr & 0x01) != 0;
+			addr >>= 1;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::LSR_ZP_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte() + c.x];
+			c.c = (addr & 0x01) != 0;
+			addr >>= 1;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::LSR_ABS,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD];
+			c.c = (addr & 0x01) != 0;
+			addr >>= 1;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::LSR_ABS_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD + c.x];
+			c.c = (addr & 0x01) != 0;
+			addr >>= 1;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROL_A,
+		[](cpu& c)
+		{
+			u8 old_c = c.c;
+			c.c = (c.a & 0x80) != 0;
+			c.a <<= 1;
+			c.a |= old_c;
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROL_ZP,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte()];
+			u8 old_c = c.c;
+			c.c = (addr & 0x80) != 0;
+			addr <<= 1;
+			addr |= old_c;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROL_ZP_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte() + c.x];
+			u8 old_c = c.c;
+			c.c = (addr & 0x80) != 0;
+			addr <<= 1;
+			addr |= old_c;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROL_ABS,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD];
+			u8 old_c = c.c;
+			c.c = (addr & 0x80) != 0;
+			addr <<= 1;
+			addr |= old_c;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROL_ABS_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD + c.x];
+			u8 old_c = c.c;
+			c.c = (addr & 0x80) != 0;
+			addr <<= 1;
+			addr |= old_c;
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROR_A,
+		[](cpu& c)
+		{
+			u8 old_c = c.c;
+			c.c = (c.a & 0x01) != 0;
+			c.a >>= 1;
+			c.a |= (old_c << (BIT_SIZE - 1));
+			c.z = (c.a == 0);
+			c.n = (c.a & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROR_ZP,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte()];
+			u8 old_c = c.c;
+			c.c = (addr & 0x01) != 0;
+			addr >>= 1;
+			addr |= (old_c << (BIT_SIZE - 1));
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROR_ZP_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[c.next_byte() + c.x];
+			u8 old_c = c.c;
+			c.c = (addr & 0x01) != 0;
+			addr >>= 1;
+			addr |= (old_c << (BIT_SIZE - 1));
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROR_ABS,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD];
+			u8 old_c = c.c;
+			c.c = (addr & 0x01) != 0;
+			addr >>= 1;
+			addr |= (old_c << (BIT_SIZE - 1));
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
+			return;
+		}
+	},
+	{
+		op::ROR_ABS_X,
+		[](cpu& c)
+		{
+			u8& addr = c.mem[NEXT_WORD + c.x];
+			u8 old_c = c.c;
+			c.c = (addr & 0x01) != 0;
+			addr >>= 1;
+			addr |= (old_c << (BIT_SIZE - 1));
+			c.z = (addr == 0);
+			c.n = (addr & 0x80) != 0;
 			return;
 		}
 	},
@@ -709,7 +1466,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		}
 	},
 	{
-		op::JSR,
+		op::JSR_ABS,
 		[](cpu& c)
 		{
 			//     address of return point - 1
@@ -725,6 +1482,164 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		[](cpu& c)
 		{
 			c.pc = POP_WORD;
+			return;
+		}
+	},
+	{
+		op::BCC,
+		[](cpu& c)
+		{
+			if (c.c == 0)
+			{
+				c.pc += c.next_byte();
+			}
+			return;
+		}
+	},
+	{
+		op::BCS,
+		[](cpu& c)
+		{
+			if (c.c != 0)
+			{
+				c.pc += c.next_byte();
+			}
+			return;
+		}
+	},
+	{
+		op::BEQ,
+		[](cpu& c)
+		{
+			if (c.z != 0)
+			{
+				c.pc += c.next_byte();
+			}
+			return;
+		}
+	},
+	{
+		op::BMI,
+		[](cpu& c)
+		{
+			if (c.n != 0)
+			{
+				c.pc += c.next_byte();
+			}
+			return;
+		}
+	},
+	{
+		op::BNE,
+		[](cpu& c)
+		{
+			if (c.z == 0)
+			{
+				c.pc += c.next_byte();
+			}
+			return;
+		}
+	},
+	{
+		op::BPL,
+		[](cpu& c)
+		{
+			if (c.n == 0)
+			{
+				c.pc += c.next_byte();
+			}
+			return;
+		}
+	},
+	{
+		op::BVC,
+		[](cpu& c)
+		{
+			if (c.v == 0)
+			{
+				c.pc += c.next_byte();
+			}
+			return;
+		}
+	},
+	{
+		op::BVS,
+		[](cpu& c)
+		{
+			if (c.v != 0)
+			{
+				c.pc += c.next_byte();
+			}
+			return;
+		}
+	},
+	{
+		op::CLC,
+		[](cpu& c)
+		{
+			c.c = false;
+			return;
+		}
+	},
+	{
+		op::CLI,
+		[](cpu& c)
+		{
+			c.i = false;
+			return;
+		}
+	},
+	{
+		op::CLV,
+		[](cpu& c)
+		{
+			c.v = false;
+			return;
+		}
+	},
+	{
+		op::SEC,
+		[](cpu& c)
+		{
+			c.c = true;
+			return;
+		}
+	},
+	{
+		op::SEI,
+		[](cpu& c)
+		{
+			c.i = true;
+			return;
+		}
+	},
+	{
+		op::BRK,
+		[](cpu& c)
+		{
+			c.push(c.pc & 0xFF);
+			c.push((c.pc & 0xFF00) >> BIT_SIZE);
+			c.push(PROCESS_STATUS);
+			c.pc = c.mem[0xFFFE];
+			c.pc |= (c.mem[0xFFFF] << BIT_SIZE);
+			c.b = true;
+			return;
+		}
+	},
+	{
+		op::RTI,
+		[](cpu& c)
+		{
+			u8 temp = c.pull();
+			c.n = (temp & (1 << 7)) != 0;
+			c.v = (temp & (1 << 6)) != 0;
+			c.k = (temp & (1 << 5)) != 0;
+			c.b = (temp & (1 << 4)) != 0;
+			c.d = (temp & (1 << 3)) != 0;
+			c.i = (temp & (1 << 2)) != 0;
+			c.z = (temp & (1 << 1)) != 0;
+			c.c = (temp & (1)) != 0;
+			c.pc = ((c.pull() << BIT_SIZE) | c.pull());
 			return;
 		}
 	},

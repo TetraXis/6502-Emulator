@@ -29,5 +29,8 @@
     <ClInclude Include="vm_6502.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="no_sillywarnings_please.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

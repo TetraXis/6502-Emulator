@@ -1461,7 +1461,8 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		op::JMP_IN,
 		[](cpu& c)
 		{
-			c.pc = (c.mem[c.next_byte()] | (c.mem[c.next_byte()] << BIT_SIZE)) - 1;
+			u16 addr = u16(c.mem[c.next_byte()]) | (c.mem[c.next_byte()] << BIT_SIZE);
+			c.pc = (u16(c.mem[addr]) + (u16(c.mem[addr + 1]) << BIT_SIZE)) - 1;
 			return;
 		}
 	},

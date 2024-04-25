@@ -7,6 +7,8 @@
 
 int main()
 {
+	std::cout << cpu::op_map.size();
+	return 0;
 	ram mem;
 	renderer ren(mem, REND_ADDR, GetDC(GetConsoleWindow()), 128, 128);
 

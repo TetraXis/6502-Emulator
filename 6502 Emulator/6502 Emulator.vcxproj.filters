@@ -24,6 +24,12 @@
     <ClCompile Include="ops_6502.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="compiler_6502.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="compiler_instructios.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vm_6502.h">
@@ -32,5 +38,12 @@
     <ClInclude Include="no_sillywarnings_please.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="compiler_6502.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="input.txt" />
+    <Text Include="output.txt" />
   </ItemGroup>
 </Project>

@@ -2,13 +2,21 @@
 #include <iostream>
 
 #include "vm_6502.h"
+#include "compiler_6502.h"
 
 #define REND_ADDR 0x8F00
 
 int main()
 {
-	std::cout << cpu::op_map.size();
+	compiler cmplr;
+	cmplr.compile("input.txt", "output.txt");
+
+
 	return 0;
+
+
+
+
 	ram mem;
 	renderer ren(mem, REND_ADDR, GetDC(GetConsoleWindow()), 128, 128);
 

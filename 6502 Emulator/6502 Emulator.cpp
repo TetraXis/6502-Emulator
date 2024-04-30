@@ -8,9 +8,14 @@
 
 int main()
 {
+	ram rm;
 	compiler cmplr;
-	cmplr.compile("input.txt", "output.txt");
+	std::cout << cmplr.compile("input.txt", rm) << '\n';
 
+	cpu cpu_0(rm);
+	cpu_0.start();
+
+	std::cout << (int)cpu_0.a << '\n';
 
 	return 0;
 

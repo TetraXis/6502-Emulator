@@ -1,8 +1,5 @@
-asdfasdfasdfasdfasdf
-asdfasdf
-asdfasfasdfasdf ;asdfasdfasdf
-   
-       
-
-    ;safasdfasd
-asdfasdfasdf
+ LDX #10
+ INX
+ INX
+ INX
+ TXA

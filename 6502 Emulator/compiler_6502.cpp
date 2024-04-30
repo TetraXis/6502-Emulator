@@ -5,22 +5,89 @@ compiler::compiler()
 
 }
 
-bool compiler::compile(const std::string in, const std::string out)
+bool compiler::compile(const std::string& in, const std::string& out)
 {
+	timer tm;
+	std::cout << "Compilation started.\n";
+	tm.start();
+	std::cout << " -- Reading \"" << in << "\"...\n";
 	if (!read_txt(in))
 	{
 		return false;
 	}
+	std::cout << " -- Cleaning up...\n";
 	remove_comments();
-	write_txt(out);
+	std::cout << " -- Compiling...\n";
+	for (const source_line& line : source_lines)
+	{
+		active_source_line = line;
+		if (parse_line(line))
+		{
+			byte_lines.push_back(active_byte_line);
+		}
+		else
+		{
+			tm.stop();
+			print_errors();
+			std::cout << "Compilation FAILED.\n";
+			std::cout << "Compilation took " << tm.elapsed_seconds() << " seconds.\n";
+			return false;
+		}
+	}
+	tm.stop();
+	print_warnings();
+	std::cout << "Compilation SUCCESSFUL.\n";
+	std::cout << "Compilation took " << tm.elapsed_seconds() << " seconds.\n";
+	std::cout << " -- Writing to \"" << out << "\"...\n";
+	build_binary(out);
+	std::cout << "Compilation finished.\n";
 	return true;
 }
 
-bool compiler::read_txt(const std::string path)
+bool compiler::compile(const std::string& in, ram& out)
+{
+	timer tm;
+	std::cout << "Compilation started.\n";
+	tm.start();
+	std::cout << " -- Reading \"" << in << "\"...\n";
+	if (!read_txt(in))
+	{
+		return false;
+	}
+	std::cout << " -- Cleaning up...\n";
+	remove_comments();
+	std::cout << " -- Compiling...\n";
+	for (const source_line& line : source_lines)
+	{
+		active_source_line = line;
+		if (parse_line(line))
+		{
+			byte_lines.push_back(active_byte_line);
+		}
+		else
+		{
+			tm.stop();
+			print_errors();
+			std::cout << "Compilation FAILED.\n";
+			std::cout << "Compilation took " << tm.elapsed_seconds() << " seconds.\n";
+			return false;
+		}
+	}
+	tm.stop();
+	print_warnings();
+	std::cout << "Compilation SUCCESSFUL.\n";
+	std::cout << "Compilation took " << tm.elapsed_seconds() << " seconds.\n";
+	std::cout << " -- Building RAM...\n";
+	build_ram(out);
+	std::cout << "Compilation finished.\n";
+	return true;
+}
+
+bool compiler::read_txt(const std::string& path)
 {
 	std::ifstream fin(path);
 	std::string line = {};
-	u64 i = 0;
+	u64 i = 1;
 
 	if (!fin)
 	{
@@ -29,17 +96,17 @@ bool compiler::read_txt(const std::string path)
 	}
 	while (std::getline(fin, line))
 	{
-		lines.emplace_back(i, line);
+		source_lines.emplace_back(i, line);
 		i++;
 	}
 	fin.close();
 	return true;
 }
 
-void compiler::write_txt(const std::string path) const
+void compiler::write_txt(const std::string& path) const
 {
 	std::ofstream fout(path);
-	for (const source_line& line : lines)
+	for (const source_line& line : source_lines)
 	{
 		fout << line.text << '\n';
 	}
@@ -48,25 +115,272 @@ void compiler::write_txt(const std::string path) const
 
 void compiler::remove_comments()
 {
-	for (auto it = lines.begin(); it != lines.end();)
+	for (auto it = source_lines.begin(); it != source_lines.end();)
 	{
-		if (std::regex_match(it->text, masks::EMPTY))
+		if (std::regex_match(it->text, mask::EMPTY))
 		{
-			lines.erase(it);
+			it = source_lines.erase(it);
 		}
 		else
 		{
 			it++;
 		}
 	}
-	for (source_line& line : lines)
+	for (source_line& line : source_lines)
 	{
-		std::regex_replace(line.text, masks::COMMENT, "");
+		line.text = std::regex_replace(line.text, mask::COMMENT, "");
+		line.text = std::regex_replace(line.text, mask::EXTRA_SPACES, " ");
+		line.text = std::regex_replace(line.text, mask::BEGIN_SPACES, "");
+		line.text = std::regex_replace(line.text, mask::END_SPACES, "");
 	}
 }
 
-bool compiler::parse_line(const source_line& line) const
+bool compiler::parse_line(const source_line& line)
 {
+	u64			line_number = line.number;
+	std::string	line_text = line.text;
+	std::string	op_text = {};
+	std::string	addr_text = {};
+	std::smatch	line_match = {};
 
+	if (!std::regex_match(line_text, mask::CORRECT_LINE))
+	{
+		std::stringstream error_line;
+		error_line << "Compilation ERROR at line: " << line_number << " \"" << line_text << "\".\n";
+		error_line << "Incorrect source line.";
+		errors.push_back(error_line.str());
+		return false;
+	}
+
+	std::regex_match(line_text, line_match, mask::CORRECT_LINE);
+	op_text = line_match.str(3);
+	addr_text = line_match.str(6);
+
+	if (op_text == "BRK" || op_text == "brk")
+	{
+		if (addr_text == "")
+		{
+			active_byte_line.size = 1;
+			active_byte_line.bytes[0] = op::BRK;
+			return true;
+		}
+		else
+		{
+			std::stringstream error_line;
+			error_line << "Compilation ERROR at line: " << line_number << " \"" << line_text << "\".\n";
+			error_line << "Operator \"BRK\" has only implied addressing mode.";
+			errors.push_back(error_line.str());
+			return false;
+		}
+	}
+
+	if (!parse_operator(op_text))
+	{
+		return false;
+	}
+
+	if (!parse_addressing(addr_text))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool compiler::parse_operator(const std::string& op)
+{
+	if (compiler::instructions_map.find(op) == compiler::instructions_map.end())
+	{
+		std::stringstream error_line;
+		error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+		error_line << "Couldn't resolve operator: \"" << op << "\".";
+		errors.push_back(error_line.str());
+		return false;
+	}
+
+	active_operator = compiler::instructions_map.at(op);
+	active_source_line.parsed_op = op;
+	return true;
+}
+
+bool compiler::parse_addressing(const std::string& addr)
+{
+	u16			parsed_address = {};
+	std::string	addr_num = {};
+	std::smatch	addr_match = {};
+
+	if (addr == "") // implied
+	{
+		if (active_operator.imp == ABSENT)
+		{
+			std::stringstream error_line;
+			error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+			error_line << "Operator \"" << active_source_line.parsed_op << "\" doesn't have implied addressing mode.";
+			errors.push_back(error_line.str());
+			return false;
+		}
+		active_byte_line.size = 1;
+		active_byte_line.bytes[0] = active_operator.imp;
+		return true;
+	}
+	if (std::regex_match(addr, mask::IM)) // immediate
+	{
+		if (active_operator.im == ABSENT)
+		{
+			std::stringstream error_line;
+			error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+			error_line << "Operator \"" << active_source_line.parsed_op << "\" doesn't have immediate addressing mode.";
+			errors.push_back(error_line.str());
+			return false;
+		}
+		std::regex_match(addr, addr_match, mask::IM);
+		addr_num = addr_match.str(1);
+		parsed_address = parse_number(addr_num);
+		if (parsed_address > 0xFF)
+		{
+			std::stringstream warning_line;
+			warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+			warning_line << "Integer \"" << addr_num << "\" is too large for IMMEDIATE addressing mode.";
+			warnings.push_back(warning_line.str());
+		}
+		active_byte_line.size = 2;
+		active_byte_line.bytes[0] = active_operator.im;
+		active_byte_line.bytes[1] = u8(parsed_address);
+		return true;
+	}
+	//if (std::regex_match(addr, mask::ABS)) // absolute, zero page or relative
+	//{
+	//	if (active_operator.abs == ABSENT)
+	//	{
+	//		std::stringstream error_line;
+	//		error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+	//		error_line << "Operator \"" << active_source_line.parsed_op << "\" doesn't have immediate addressing mode.";
+	//		errors.push_back(error_line.str());
+	//		return false;
+	//	}
+	//}
+
+
+	std::stringstream error_line;
+	error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+	error_line << "Unknown ERROR.\n";
+	errors.push_back(error_line.str());
 	return false;
+}
+
+void compiler::print_errors() const
+{
+	std::cout << '\n';
+	for (const std::string& error : errors)
+	{
+		std::cout << "!> " << error << '\n';
+	}
+	std::cout << '\n';
+}
+
+void compiler::print_warnings() const
+{
+	std::cout << '\n';
+	for (const std::string& warning : warnings)
+	{
+		std::cout << " > " << warning << '\n';
+	}
+	std::cout << '\n';
+}
+
+u16 compiler::parse_number(const std::string& num)
+{
+	u64 parsed_num = {};
+
+	if (std::regex_match(num, mask::DEC))
+	{
+		parsed_num = std::stoi(num);
+		if (parsed_num > 0xFFFF)
+		{
+			std::stringstream warning_line;
+			warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+			warning_line << "Integer \"" << num << "\" is too large.";
+			warnings.push_back(warning_line.str());
+		}
+		return u16(parsed_num);
+	}
+
+	if (std::regex_match(num, mask::BIN))
+	{
+		//               vv 16 bits + '%'
+		if (num.size() > 17)
+		{
+			std::stringstream warning_line;
+			warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+			warning_line << "Integer \"" << num << "\" is too large.";
+			warnings.push_back(warning_line.str());
+		}
+		u32 bin_value = 1;
+		for (u8 i = 0; i < 16; i++)
+		{
+			if (num[num.size() - i] == '1')
+			{
+				parsed_num += bin_value;
+			}
+			bin_value <<= 1;
+		}
+		return u16(parsed_num);
+	}
+
+	if (std::regex_match(num, mask::HEX))
+	{
+		//               vv 4 hexes + '$'
+		if (num.size() > 5)
+		{
+			std::stringstream warning_line;
+			warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+			warning_line << "Integer \"" << num << "\" is too large.";
+			warnings.push_back(warning_line.str());
+		}
+		std::stringstream ss;
+		ss << std::hex << num.substr(1, num.size() - 2);
+		ss >> parsed_num;
+		return u16(parsed_num);
+	}
+
+
+	std::stringstream error_line;
+	error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+	error_line << "Couldn't resolve number \"" << num << "\".";
+	errors.push_back(error_line.str());
+
+	return 0;
+}
+
+void compiler::build_binary(const std::string& out) const
+{
+	std::ofstream fout(out, std::ios::binary);
+	for (const byte_line& line : byte_lines)
+	{
+		for (u8 i = 0; i < line.size; i++)
+		{
+			fout << line.bytes[i];
+		}
+	}
+	fout.close();
+}
+
+void compiler::build_ram(ram& out) const
+{
+	out.clear();
+
+	out[0xFFFC] = op::JSR_ABS;
+	out[0xFFFD] = 0x00;
+	out[0xFFFE] = 0x02;
+	out[0xFFFF] = op::KIL;
+
+	u16 addr = 0x200;
+	for (const byte_line& line : byte_lines)
+	{
+		for (u8 i = 0; i < line.size; i++)
+		{
+			out[addr++] = line.bytes[i];
+		}
+	}
+	out[addr] = op::RTS;
 }

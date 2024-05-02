@@ -54,6 +54,7 @@ struct compiler
 
 	std::vector<std::string>	warnings = {};
 	std::vector<std::string>	errors = {};
+	//std::pair<std::string, std::string> defines = {};
 	static std::map<std::string, instruction> instructions_map;
 
 	compiler();
@@ -66,6 +67,8 @@ struct compiler
 
 	// removes commentaries and empty strings
 	void remove_comments();
+
+	void resolve_defines();
 
 	// false if compilation error
 	bool parse_line(const source_line& line);
@@ -89,13 +92,14 @@ namespace mask
 	static std::regex EXTRA_SPACES("\\s+");
 	static std::regex BEGIN_SPACES("^\\s*");
 	static std::regex END_SPACES("\\s*$");
+	static std::regex DEFINE("^\\s*DEFINE\\s+([a-zA-Z_]\\w*)\\s+(.*)$");
 
 	// numbers
 	static std::regex HEX("^\\$([\\da-fA-F]+)$");
 	static std::regex DEC("^(\\d+)$");
 	static std::regex BIN("^\\%([01]+)$");
 
-	static std::regex CORRECT_LINE("^(\\s*[a-zA-Z_]\\w*?)?(\\s*)([A-Za-z]{3})((\\s+)(.*?))?(\\s*)(;.*)?$");
+	static std::regex CORRECT_LINE("^((\\s*[a-zA-Z_]\\w*?)\\s+)?([A-Za-z]{3})((\\s+)(.*?))?(\\s*)(;.*)?$");
 
 	// addressings
 	static std::regex IM("^#(\\$?%?[\\da-fA-F]+)$"); // immediate

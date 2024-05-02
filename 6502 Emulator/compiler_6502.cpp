@@ -15,6 +15,8 @@ bool compiler::compile(const std::string& in, const std::string& out)
 	{
 		return false;
 	}
+	std::cout << " -- Resolving defines...\n";
+	resolve_defines();
 	std::cout << " -- Cleaning up...\n";
 	remove_comments();
 	std::cout << " -- Compiling...\n";
@@ -54,6 +56,8 @@ bool compiler::compile(const std::string& in, ram& out)
 	{
 		return false;
 	}
+	std::cout << " -- Resolving defines...\n";
+	resolve_defines();
 	std::cout << " -- Cleaning up...\n";
 	remove_comments();
 	std::cout << " -- Compiling...\n";
@@ -135,8 +139,37 @@ void compiler::remove_comments()
 	}
 }
 
+void compiler::resolve_defines()
+{
+	u64			i = 0;
+	std::smatch define_match = {};
+	std::string name = {};
+	std::string value = {};
+
+	for (const auto& [number, line, parsed_op] : source_lines)
+	{
+		if (std::regex_match(line, mask::DEFINE))
+		{
+			std::regex_match(line, define_match, mask::DEFINE);
+			name = define_match.str(1);
+			value = define_match.str(2);
+
+			for (u64 j = i + 1; j < source_lines.size(); j++)
+			{
+				source_lines[j].text = std::regex_replace(source_lines[j].text, std::regex(name), value);
+			}
+		}
+		i++;
+	}
+}
+
 bool compiler::parse_line(const source_line& line)
 {
+	if (std::regex_match(line.text, mask::EMPTY) || std::regex_match(line.text, mask::DEFINE))
+	{
+		return true;
+	}
+
 	u64			line_number = line.number;
 	std::string	line_text = line.text;
 	std::string	op_text = {};

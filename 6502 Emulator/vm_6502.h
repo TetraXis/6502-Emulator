@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <functional>
 #include <Windows.h>
@@ -38,6 +39,8 @@ struct ram
 	u8 operator [] (u32 idx) const;
 
 	u8& operator [] (u32 idx);
+
+	void write_to(const std::string& path);
 };
 
 struct cpu

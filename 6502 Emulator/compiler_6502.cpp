@@ -173,6 +173,45 @@ bool compiler::parse_line(const source_line& line)
 			return false;
 		}
 	}
+	if (op_text == "JMP" || op_text == "jmp")
+	{
+		std::string addr_num = {};
+		u16 parsed_address = {};
+		std::smatch addr_match = {};
+
+		if (std::regex_match(addr_text, mask::ABS_IN))
+		{
+			std::regex_match(addr_text, addr_match, mask::ABS_IN);
+			addr_num = addr_match.str(1);
+			parsed_address = parse_number(addr_num);
+
+			active_byte_line.size = 3;
+			active_byte_line.bytes[0] = op::JMP_IN;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			active_byte_line.bytes[2] = u8(parsed_address >> BIT_SIZE);
+			return true;
+		}
+		else if (std::regex_match(addr_text, mask::ABS))
+		{
+			std::regex_match(addr_text, addr_match, mask::ABS);
+			addr_num = addr_match.str(1);
+			parsed_address = parse_number(addr_num);
+
+			active_byte_line.size = 3;
+			active_byte_line.bytes[0] = op::JMP_IN;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			active_byte_line.bytes[2] = u8(parsed_address >> BIT_SIZE);
+			return true;
+		}
+		else
+		{
+			std::stringstream error_line;
+			error_line << "Compilation ERROR at line: " << line_number << " \"" << line_text << "\".\n";
+			error_line << "Operator \"JMP\" has only absolute or indirect addressing modes.";
+			errors.push_back(error_line.str());
+			return false;
+		}
+	}
 
 	if (!parse_operator(op_text))
 	{
@@ -223,6 +262,7 @@ bool compiler::parse_addressing(const std::string& addr)
 		active_byte_line.bytes[0] = active_operator.imp;
 		return true;
 	}
+
 	if (std::regex_match(addr, mask::IM)) // immediate
 	{
 		if (active_operator.im == ABSENT)
@@ -240,36 +280,199 @@ bool compiler::parse_addressing(const std::string& addr)
 		{
 			std::stringstream warning_line;
 			warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
-			warning_line << "Integer \"" << addr_num << "\" is too large for IMMEDIATE addressing mode.";
+			warning_line << "Integer \"" << addr_num << "\" is too large for immediate addressing mode.";
 			warnings.push_back(warning_line.str());
 		}
 		active_byte_line.size = 2;
 		active_byte_line.bytes[0] = active_operator.im;
-		active_byte_line.bytes[1] = u8(parsed_address);
+		active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
 		return true;
 	}
-	//if (std::regex_match(addr, mask::ABS)) // absolute, zero page or relative
-	//{
-	//	if (active_operator.abs == ABSENT)
-	//	{
-	//		std::stringstream error_line;
-	//		error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
-	//		error_line << "Operator \"" << active_source_line.parsed_op << "\" doesn't have immediate addressing mode.";
-	//		errors.push_back(error_line.str());
-	//		return false;
-	//	}
-	//}
+
+	if (std::regex_match(addr, mask::ABS)) // absolute, zero page or relative
+	{
+		std::regex_match(addr, addr_match, mask::ABS);
+		addr_num = addr_match.str(1);
+		parsed_address = parse_number(addr_num);
+
+		if (active_operator.zp != ABSENT && parsed_address < 0xFF) // zero page or relative
+		{
+			active_byte_line.size = 2;
+			active_byte_line.bytes[0] = active_operator.zp;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			return true;
+		}
+		if (active_operator.abs != ABSENT) // absolute
+		{
+			active_byte_line.size = 3;
+			active_byte_line.bytes[0] = active_operator.abs;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			active_byte_line.bytes[2] = u8(parsed_address >> BIT_SIZE);
+			return true;
+		}
+		if (active_operator.zp != ABSENT) // zero page or relative
+		{
+			if (parsed_address > 0xFF)
+			{
+				std::stringstream warning_line;
+				warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+				warning_line << "Integer \"" << addr_num << "\" is too large for zero page or relative addressing modes.";
+				warnings.push_back(warning_line.str());
+			}
+			active_byte_line.size = 2;
+			active_byte_line.bytes[0] = active_operator.zp;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			return true;
+		}
+		std::stringstream error_line;
+		error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+		error_line << "Operator \"" << active_source_line.parsed_op << "\" doesn't have absolute, zero page or relative addressing modes.";
+		errors.push_back(error_line.str());
+		return false;
+	}
+
+	if (std::regex_match(addr, mask::ABS_X)) // absolute, x or zero page, x
+	{
+		std::regex_match(addr, addr_match, mask::ABS_X);
+		addr_num = addr_match.str(1);
+		parsed_address = parse_number(addr_num);
+
+		if (active_operator.zp_x != ABSENT && parsed_address < 0xFF) // zero page, x
+		{
+			active_byte_line.size = 2;
+			active_byte_line.bytes[0] = active_operator.zp_x;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			return true;
+		}
+		if (active_operator.abs_x != ABSENT) // absolute, x
+		{
+			active_byte_line.size = 3;
+			active_byte_line.bytes[0] = active_operator.abs_x;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			active_byte_line.bytes[2] = u8(parsed_address >> BIT_SIZE);
+			return true;
+		}
+		if (active_operator.zp_x != ABSENT) // zero page, x
+		{
+			if (parsed_address > 0xFF)
+			{
+				std::stringstream warning_line;
+				warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+				warning_line << "Integer \"" << addr_num << "\" is too large for (zero page, x) addressing mode.";
+				warnings.push_back(warning_line.str());
+			}
+			active_byte_line.size = 2;
+			active_byte_line.bytes[0] = active_operator.zp_x;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			return true;
+		}
+		std::stringstream error_line;
+		error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+		error_line << "Operator \"" << active_source_line.parsed_op << "\" doesn't have (absolute, x) or (zero page, x) addressing modes.";
+		errors.push_back(error_line.str());
+		return false;
+	}
+
+	if (std::regex_match(addr, mask::ABS_Y)) // absolute, y or zero page, y
+	{
+		std::regex_match(addr, addr_match, mask::ABS_Y);
+		addr_num = addr_match.str(1);
+		parsed_address = parse_number(addr_num);
+
+		if (active_operator.zp_y != ABSENT && parsed_address < 0xFF) // zero page, y
+		{
+			active_byte_line.size = 2;
+			active_byte_line.bytes[0] = active_operator.zp_y;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			return true;
+		}
+		if (active_operator.abs_y != ABSENT) // absolute, y
+		{
+			active_byte_line.size = 3;
+			active_byte_line.bytes[0] = active_operator.abs_y;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			active_byte_line.bytes[2] = u8(parsed_address >> BIT_SIZE);
+			return true;
+		}
+		if (active_operator.zp_y != ABSENT) // zero page, y
+		{
+			if (parsed_address > 0xFF)
+			{
+				std::stringstream warning_line;
+				warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+				warning_line << "Integer \"" << addr_num << "\" is too large for (zero page, y) addressing mode.";
+				warnings.push_back(warning_line.str());
+			}
+			active_byte_line.size = 2;
+			active_byte_line.bytes[0] = active_operator.zp_y;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			return true;
+		}
+		std::stringstream error_line;
+		error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+		error_line << "Operator \"" << active_source_line.parsed_op << "\" doesn't have (absolute, y) or (zero page, y) addressing modes.";
+		errors.push_back(error_line.str());
+		return false;
+	}
+
+	if (std::regex_match(addr, mask::IN_X)) // indirect, x
+	{
+		if (active_operator.in_x != ABSENT) // indirect, x
+		{
+			std::regex_match(addr, addr_match, mask::IN_X);
+			addr_num = addr_match.str(1);
+			parsed_address = parse_number(addr_num);
+			if (parsed_address > 0xFF)
+			{
+				std::stringstream warning_line;
+				warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+				warning_line << "Integer \"" << addr_num << "\" is too large for (indirect, x) addressing mode.";
+				warnings.push_back(warning_line.str());
+			}
+
+			active_byte_line.size = 2;
+			active_byte_line.bytes[0] = active_operator.in_x;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			return true;
+		}
+	}
+
+	if (std::regex_match(addr, mask::IN_Y)) // indirect, y
+	{
+		if (active_operator.in_y != ABSENT) // indirect, y
+		{
+			std::regex_match(addr, addr_match, mask::IN_Y);
+			addr_num = addr_match.str(1);
+			parsed_address = parse_number(addr_num);
+			if (parsed_address > 0xFF)
+			{
+				std::stringstream warning_line;
+				warning_line << "WARNING at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
+				warning_line << "Integer \"" << addr_num << "\" is too large for (indirect, y) addressing mode.";
+				warnings.push_back(warning_line.str());
+			}
+
+			active_byte_line.size = 2;
+			active_byte_line.bytes[0] = active_operator.in_y;
+			active_byte_line.bytes[1] = u8(parsed_address & 0xFF);
+			return true;
+		}
+	}
 
 
 	std::stringstream error_line;
 	error_line << "Compilation ERROR at line: " << active_source_line.number << " \"" << active_source_line.text << "\".\n";
-	error_line << "Unknown ERROR.\n";
+	error_line << "Couldn't parse \"" << addr << "\" as addressing mode.\n";
 	errors.push_back(error_line.str());
 	return false;
 }
 
 void compiler::print_errors() const
 {
+	if (errors.size() == 0)
+	{
+		return;
+	}
 	std::cout << '\n';
 	for (const std::string& error : errors)
 	{
@@ -280,6 +483,10 @@ void compiler::print_errors() const
 
 void compiler::print_warnings() const
 {
+	if (warnings.size() == 0)
+	{
+		return;
+	}
 	std::cout << '\n';
 	for (const std::string& warning : warnings)
 	{
@@ -338,7 +545,7 @@ u16 compiler::parse_number(const std::string& num)
 			warnings.push_back(warning_line.str());
 		}
 		std::stringstream ss;
-		ss << std::hex << num.substr(1, num.size() - 2);
+		ss << std::hex << num.substr(1, num.size() - 1);
 		ss >> parsed_num;
 		return u16(parsed_num);
 	}

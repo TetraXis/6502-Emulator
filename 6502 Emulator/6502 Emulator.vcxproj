@@ -158,6 +158,7 @@
     <Text Include="output.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="memory_shapshot.bin" />
     <None Include="output.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -13,15 +13,15 @@
 
 */
 
-
+// IN_X AND IN_Y ARE WRONG!!!!
 
 #define NEXT_WORD (c.next_byte() | (c.next_byte() << BIT_SIZE))
 #define POP_WORD ((c.pull() << BIT_SIZE) | c.pull())
 #define PROCESS_STATUS ((c.n << 7) | (c.v << 6) | (c.k << 5) | (c.b << 4) | (c.d << 3) | (c.i << 2) | (c.z << 1) | (c.c))
 
-#define GET_INDIRECT_ADDR_X u8 addr = c.mem[u8(c.next_byte() + c.x)];
-#define GET_INDIRECT_ADDR_Y u8 addr = c.mem[u8(c.next_byte())];
-#define CONCAT_ADDR (addr | ((addr + 1) << BIT_SIZE))
+#define GET_INDIRECT_ADDR_X u8 addr = u8(c.next_byte() + c.x);
+#define GET_INDIRECT_ADDR_Y u8 addr = u8(c.next_byte());
+#define CONCAT_ADDR (c.mem[addr] | ((c.mem[addr + 1]) << BIT_SIZE))
 
 std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 {

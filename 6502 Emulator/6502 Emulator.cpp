@@ -10,12 +10,17 @@ int main()
 {
 	ram rm;
 	compiler cmplr;
-	std::cout << cmplr.compile("input.txt", rm) << '\n';
+	//cmplr.compile("input.txt", "output.bin");
+	cmplr.compile("input.txt", rm);
 
 	cpu cpu_0(rm);
 	cpu_0.start();
 
 	std::cout << (int)cpu_0.a << '\n';
+	std::cout << (int)cpu_0.x << '\n';
+	std::cout << (int)cpu_0.y << '\n';
+
+	rm.write_to("memory_shapshot.bin");
 
 	return 0;
 

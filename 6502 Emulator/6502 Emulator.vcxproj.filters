@@ -57,5 +57,8 @@
     <None Include="output.bin">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="memory_shapshot.bin">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
 </Project>

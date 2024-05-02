@@ -1,5 +1,9 @@
- LDX #10
- INX
- INX
- INX
- TXA
+LDA #$74
+STA $24
+LDA #$20
+STA $25
+LDA #$FF
+STA $2074
+LDA #0
+LDX #$04
+LDA ($20, X)

@@ -39,6 +39,16 @@ u8& ram::operator[](u32 idx)
 	return data[idx];
 }
 
+void ram::write_to(const std::string& path)
+{
+	std::ofstream fout(path, std::ios::binary);
+	for (u32 i = 0; i <= 0xFFFF; i++)
+	{
+		fout << data[i];
+	}
+	fout.close();
+}
+
 cpu::cpu(ram& mem_ref) : mem(mem_ref)
 {
 	reset();

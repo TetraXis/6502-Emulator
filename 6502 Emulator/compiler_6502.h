@@ -101,11 +101,11 @@ namespace mask
 	static std::regex IM("^#(\\$?%?[\\da-fA-F]+)$"); // immediate
 	// absolute addressing is changed into zero page if address is <= 0xFF
 	static std::regex ABS("^(\\$?%?[\\da-fA-F]+)$"); // absolute or zero page or relative
-	static std::regex ABS_X("^(#?\\$?%?[\\da-fA-F]+\\s*,\\s*X|x)$"); // absolute, x or zero page, x
-	static std::regex ABS_Y("^(#?\\$?%?[\\da-fA-F]+\\s*,\\s*Y|y)$"); // absolute, y or zero page, y
-	static std::regex ABS_IN("^(\\(#?\\$?%?[\\da-fA-F]+\\s*,\\s*Y|y\\))$"); // absolute indirect
-	static std::regex IN_X("^(\\(\\s*\\$?%?[\\da-fA-F]+\\s*,\\s*X|x\\s*\\))$"); // inderect, x
-	static std::regex IN_Y("^(\\(\\s*\\$?%?[\\da-fA-F]+\\s*\\)\\s*,\\s*Y|y)$"); // indirect, y
+	static std::regex ABS_X("^(\\$?%?[\\da-fA-F]+)\\s*,\\s*[Xx]$"); // absolute, x or zero page, x
+	static std::regex ABS_Y("^(\\$?%?[\\da-fA-F]+)\\s*,\\s*[Yy]$"); // absolute, y or zero page, y
+	static std::regex ABS_IN("^\\((\\$?%?[\\da-fA-F]+)\\s*\\)$"); // absolute indirect
+	static std::regex IN_X("^\\(\\s*(\\$?%?[\\da-fA-F]+)\\s*,\\s*[Xx]\\s*\\)$"); // inderect, x
+	static std::regex IN_Y("^\\(\\s*(\\$?%?[\\da-fA-F]+)\\s*\\)\\s*,\\s*[Yy]$"); // indirect, y
 	// if no zero page addressing found checks for relative
 	static std::regex LABEL("^[a-zA-Z_]\\w*$");
 }

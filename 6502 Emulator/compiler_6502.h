@@ -9,6 +9,8 @@
 #include "vm_6502.h"
 #include "timer.h"
 
+// NOTE: Lables only can be used by standard branch ops
+
 struct source_line
 {
 	u64 number = 0;
@@ -46,16 +48,18 @@ struct instruction
 
 struct compiler
 {
-	source_line					active_source_line = {};
-	byte_line					active_byte_line = {};
-	instruction					active_operator = {};
-	std::vector<source_line>	source_lines = {};
-	std::vector<byte_line>		byte_lines = {};
+	source_line									active_source_line = {};
+	byte_line									active_byte_line = {};
+	instruction									active_operator = {};
 
-	std::vector<std::string>	warnings = {};
-	std::vector<std::string>	errors = {};
-	//std::pair<std::string, std::string> defines = {};
-	static std::map<std::string, instruction> instructions_map;
+	std::vector<source_line>					source_lines = {};
+	std::vector<byte_line>						byte_lines = {};
+	//                    name         addr
+	std::vector<std::pair<std::string, u8>>		labels = {};
+
+	std::vector<std::string>					warnings = {};
+	std::vector<std::string>					errors = {};
+	static std::map<std::string, instruction>	instructions_map;
 
 	compiler();
 
@@ -65,10 +69,11 @@ struct compiler
 	bool read_txt(const std::string& path);
 	void write_txt(const std::string& path) const;
 
-	// removes commentaries and empty strings
-	void remove_comments();
+	// removes commentaries, empty strings and extra spaces
+	void cleanup();
 
 	void resolve_defines();
+	bool resolve_labels();
 
 	// false if compilation error
 	bool parse_line(const source_line& line);
@@ -92,7 +97,7 @@ namespace mask
 	static std::regex EXTRA_SPACES("\\s+");
 	static std::regex BEGIN_SPACES("^\\s*");
 	static std::regex END_SPACES("\\s*$");
-	static std::regex DEFINE("^\\s*DEFINE\\s+([a-zA-Z_]\\w*)\\s+(.*)$");
+	static std::regex DEFINE("^\\s*DEFINE\\s+(.*?)\\s+(.*?)\\s*$");
 
 	// numbers
 	static std::regex HEX("^\\$([\\da-fA-F]+)$");
@@ -111,5 +116,8 @@ namespace mask
 	static std::regex IN_X("^\\(\\s*(\\$?%?[\\da-fA-F]+)\\s*,\\s*[Xx]\\s*\\)$"); // inderect, x
 	static std::regex IN_Y("^\\(\\s*(\\$?%?[\\da-fA-F]+)\\s*\\)\\s*,\\s*[Yy]$"); // indirect, y
 	// if no zero page addressing found checks for relative
-	static std::regex LABEL("^[a-zA-Z_]\\w*$");
+
+	// labels
+	static std::regex LABEL("^\\s*([a-zA-Z_]\\w*)\\s*:?\\s*$");
+	static std::regex LABEL_USE("^\\s*[Bb][CcEeMmNnPpVv][CcSsQqIiEeLl]\\s+([a-zA-Z_]\\w*)\\s*.*$");
 }

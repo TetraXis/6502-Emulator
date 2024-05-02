@@ -18,8 +18,8 @@ bool compiler::compile(const std::string& in, const std::string& out)
 	std::cout << " -- Resolving defines...\n";
 	resolve_defines();
 	std::cout << " -- Cleaning up...\n";
-	remove_comments();
-	std::cout << " -- Compiling...\n";
+	cleanup();
+	std::cout << " -- Parsing code...\n";
 	for (const source_line& line : source_lines)
 	{
 		active_source_line = line;
@@ -59,8 +59,8 @@ bool compiler::compile(const std::string& in, ram& out)
 	std::cout << " -- Resolving defines...\n";
 	resolve_defines();
 	std::cout << " -- Cleaning up...\n";
-	remove_comments();
-	std::cout << " -- Compiling...\n";
+	cleanup();
+	std::cout << " -- Parsing code...\n";
 	for (const source_line& line : source_lines)
 	{
 		active_source_line = line;
@@ -117,7 +117,7 @@ void compiler::write_txt(const std::string& path) const
 	fout.close();
 }
 
-void compiler::remove_comments()
+void compiler::cleanup()
 {
 	for (auto it = source_lines.begin(); it != source_lines.end();)
 	{
@@ -160,6 +160,29 @@ void compiler::resolve_defines()
 			}
 		}
 		i++;
+	}
+}
+
+bool compiler::resolve_labels()
+{
+	std::smatch	label_match = {};
+	std::string	label = {};
+
+	for (auto& [number, line, parsed_op] : source_lines)
+	{
+		if (std::regex_match(line, mask::EMPTY) || std::regex_match(line, mask::DEFINE))
+		{
+			continue;
+		}
+
+		if (std::regex_match(line, label_match, mask::CORRECT_LINE))
+		{
+			label = label_match.str(1);
+			if (label != "")
+			{
+
+			}
+		}
 	}
 }
 

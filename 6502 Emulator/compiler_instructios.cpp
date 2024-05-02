@@ -1,6 +1,6 @@
 #include "compiler_6502.h"
 
-std::map<std::string, instruction> compiler::instructions_map =
+std::map<std::string, op_modes> compiler::op_map =
 {
 	{
 		"LDA",				// name

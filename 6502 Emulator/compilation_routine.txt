@@ -1,0 +1,65 @@
+Compilation steps:
+
+1. Read input file as is.
+2. Parse and resolve DEFINEs:
+	Where DEFINE can be:
+	a. DEFINE {NAME} {VALUE}: // this is weak define - only defines by whole word match
+		{NAME}:
+			Any valid name (i.e. "[_a-zA-Z]\\w*").
+		{VALUE}:
+			Anything without spaces (i.e. "[^\\s]").
+	b. DEFINE "{NAME}" "{VALUE}":
+		{NAME}:
+			Anything (i.e. ".*").
+		{VALUE}:
+			Anything (i.e. ".*").
+3. Clean up:
+	Remove non-meaning lines (i.e "^\\s*(;.*)?$").
+	Remove commentaries (i.e ";.*$").
+	Remove excessive spaces:
+		Remove spaces in front.
+		Remove spaces in end.
+		Replace "\\s+" with " ".
+	Remove DEFINE lines.
+4. Read all label declarations:
+	a. Just a label:
+		a.a. "{LABEL}:".
+		a.b. "{LABEL}".
+	b. Label followed by an operator:
+		b.a "{LABEL}: {OP} [ADDR]".
+		b.b "{LABEL} {OP} [ADDR]".
+5. Parse UNTIL zero unparsed lines met (but not over 16 times): Parse one {LINE} at a time:
+	If {LINE} is not parsed: Break line into groups:
+		{LABEL},
+		{OP},
+		{ADDR}.
+	If {LABEL} is non-zero:
+		Save byte address for {LABEL}
+	Parse {OP} {ADDR}:
+		Check if {OP} is valid, if not:
+			Generate an ERROR and fail parsing. FAILED.
+		Parse {ADDR}:
+			If {ADDR} contains {LABEL} with UNKNOWN address (i.e. destination is after branch):
+				Check if {LABEL} is valid, if not:
+					Generate an ERROR and fail parsing. FAILED.
+				Determine byte size of {OP}.
+				DO NOT mark {LINE} as parsed.
+				Finish parsing. SUCCEEDED.
+			If {ADDR} contains {LABEL} with KNOWN address (i.e. destination was before branch):
+				Check if relative destination can be reached, if not:
+					Generate an ERROR and fail parsing. FAILED.
+				Replace {LABEL} with known address.
+			If {ADDR} contains invalid {LABEL} (i.e. LABEL that wasn't declared):
+				Generate an ERROR and fail parsing. FAILED.
+			If {ADDR} is valid, if not:
+				Generate an ERROR and fail parsing. FAILED.
+			Check if {OP} has specified addressing mode, if not:
+				5Generate an ERROR and fail parsing. FAILED.
+			Return SUCCESEFUL {ADDR} parsing.
+		Mark {LINE} as parsed.
+		Write parsed bytes into {LINE}.
+6. If after 16 passes there are still unparsed lines:
+	Print all unparsed ilnes.
+	Fail compilation. FAILED.
+7. Write all parsed bytes into a destination.
+8. Finish compilation. SUCCEEDED.

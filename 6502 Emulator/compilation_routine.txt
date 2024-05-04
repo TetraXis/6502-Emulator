@@ -13,6 +13,7 @@ Compilation steps:
 			Anything (i.e. ".*").
 		{VALUE}:
 			Anything (i.e. ".*").
+	Remove define line after resolving
 3. Clean up:
 	Remove non-meaning lines (i.e "^\\s*(;.*)?$").
 	Remove commentaries (i.e ";.*$").
@@ -20,7 +21,6 @@ Compilation steps:
 		Remove spaces in front.
 		Remove spaces in end.
 		Replace "\\s+" with " ".
-	Remove DEFINE lines.
 4. Read all label declarations:
 	a. Just a label:
 		a.a. "{LABEL}:".

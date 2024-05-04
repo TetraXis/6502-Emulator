@@ -145,6 +145,7 @@ u16 compiler::parse_number(const std::string& num)
 bool compiler::compile(const std::string& input)
 {
 	bool success = true;
+	bool unparsed_lines_present = false;
 	internal_timer.start();
 
 	std::cout << " -- Reading from \"" << input << "\"...\n";
@@ -160,6 +161,36 @@ bool compiler::compile(const std::string& input)
 
 	std::cout << " -- Cleaning up...\n";
 	clean_up();
+
+	std::cout << " -- Reading labels...\n";
+	read_labels();
+
+	std::cout << " -- Parsing lines...\n";
+	for (u64 attempt = 0; attempt < MAX_PARSE_PASSES; attempt++)
+	{
+		if (errors.size() != 0)
+		{
+			success = false;
+			goto finish_compilation;
+		}
+
+		unparsed_lines_present = false;
+		parsed_bytes = 0;
+		for (source_line& line : source_lines)
+		{
+			active_line = &line;
+			if (!parse_active_line())
+			{
+				unparsed_lines_present = true;
+			}
+		}
+
+		if (!unparsed_lines_present)
+		{
+			goto finish_compilation;
+		}
+	}
+
 
 finish_compilation:;
 	internal_timer.stop();
@@ -241,15 +272,96 @@ void compiler::read_labels()
 			name = label_match.str(1);
 			if (name != "")
 			{
-				labels.emplace_back(name, ABSENT);
+				labels[name] = ABSENT;
 			}
 		}
 		else if (std::regex_match(line.text, label_match, mask::LABEL_DECL))
 		{
 			name = label_match.str(1);
-			labels.emplace_back(name, ABSENT);
+			labels[name] = ABSENT;
 		}
 	}
+}
+
+bool compiler::parse_active_line()
+{
+	if (active_line->parsed)
+	{
+		parsed_bytes += active_line->byte_size;
+		return true;
+	}
+
+	std::smatch line_match = {};
+	std::string label = {};
+	std::string op = {};
+	std::string addr = {};
+
+	if (std::regex_match(active_line->text, line_match, mask::CORRECT_LINE))
+	{
+		label	= line_match.str(1);
+		op		= line_match.str(3);
+		addr	= line_match.str(5);
+
+		if (label != "")
+		{
+			labels[label] = parsed_bytes;
+		}
+
+		if (parse_op(op))
+		{
+			parse_addr(addr);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		errors.push_back(msg::err(*active_line, "Incorrect source line", "Couldn't parse source line"));
+		return false;
+	}
+}
+
+bool compiler::parse_op(const std::string& op)
+{
+	// handle JMP and BRK here
+
+	if (op_map.find(op) != op_map.end())
+	{
+		active_line->parsed_op = op_map.at(op);
+		return true;
+	}
+	else
+	{
+		errors.push_back(msg::err(*active_line, "Unknown operator", "Couldn't parse \"" + op + "\" as valid operator"));
+		return false;
+	}
+}
+
+bool compiler::parse_addr(const std::string& addr)
+{
+	if (std::regex_match(addr, mask::LABEL_IN_USE))
+	{
+		if (labels.find(addr) != labels.end())
+		{
+			if (labels.at(addr) != ABSENT)
+			{
+				// TODO: calc relative or abs addr
+			}
+			else
+			{
+				active_line->unresolved_label = true;
+				return true;
+			}
+		}
+		else
+		{
+			errors.push_back(msg::err(*active_line, "Refernce of undeclared label", "Label \"" + addr + "\" was referenced. but never declared"));
+		}
+	}
+
+	// HERE: parse addr
 }
 
 //bool compiler::compile(const std::string& in, const std::string& out)

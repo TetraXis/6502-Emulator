@@ -16,16 +16,16 @@ constexpr u8 ABSENT = 0x00; // for indicating that addressing variant is absent
 
 struct op_modes
 {
-	u8 imp = {};	// implied
-	u8 im = {};		// immediate
-	u8 zp = {};		// zero page or relative
-	u8 zp_x = {};	// zero page, x
-	u8 zp_y = {};	// zero page, y
-	u8 abs = {};	// absolute
-	u8 abs_x = {};	// absolute, x
-	u8 abs_y = {};	// absolute, y
-	u8 in_x = {};	// indirect, x
-	u8 in_y = {};	// indirect, y
+	u8 imp		= ABSENT;	// implied
+	u8 im		= ABSENT;	// immediate
+	u8 zp		= ABSENT;	// zero page or relative
+	u8 zp_x		= ABSENT;	// zero page, x
+	u8 zp_y		= ABSENT;	// zero page, y
+	u8 abs		= ABSENT;	// absolute
+	u8 abs_x	= ABSENT;	// absolute, x
+	u8 abs_y	= ABSENT;	// absolute, y
+	u8 in_x		= ABSENT;	// indirect, x
+	u8 in_y		= ABSENT;	// indirect, y
 };
 
 enum struct addr_mode : u8
@@ -36,9 +36,10 @@ enum struct addr_mode : u8
 struct source_line
 {
 	bool		parsed = false;
+	bool		unresolved_label = false;
 	u64			number = 0;
 	std::string	text = "";
-	u8			parsed_op = ABSENT;
+	op_modes	parsed_op = {};
 	addr_mode	parsed_mode = addr_mode::none;
 	u8			byte_size = 0;
 	u8			bytes[3] = {};
@@ -57,14 +58,18 @@ struct msg
 	static msg wrn(const source_line& line, const std::string& type, const std::string& add_msg);
 };
 
+constexpr u64 MAX_PARSE_PASSES = 16;
+
 struct compiler
 {
 	static std::map<std::string, op_modes>		op_map;
 
-	//                    name         addr
-	std::vector<std::pair<std::string, u64>>	labels = {};
+	//       name         addr
+	std::map<std::string, u64>	labels = {};
 	std::vector<source_line>	source_lines = {};
 	source_line*				active_line = nullptr;
+	// counts bytes before encoutering a label
+	u64							parsed_bytes = 0;
 	
 	std::vector<msg>			warnings = {};
 	std::vector<msg>			errors = {};
@@ -85,6 +90,11 @@ struct compiler
 	void resolve_defines();
 	void clean_up();
 	void read_labels();
+	bool parse_active_line();
+
+	// all methods below rely on shared active_line
+	bool parse_op(const std::string& op);
+	bool parse_addr(const std::string& addr);
 };
 
 namespace mask

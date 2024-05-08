@@ -1480,7 +1480,11 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			if (c.c == 0)
 			{
-				c.pc += c.next_byte();
+				c.pc += i8(c.next_byte()) - 1;
+			}
+			else
+			{
+				c.pc++;
 			}
 			return;
 		}
@@ -1491,7 +1495,11 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			if (c.c != 0)
 			{
-				c.pc += c.next_byte();
+				c.pc += i8(c.next_byte()) - 1;
+			}
+			else
+			{
+				c.pc++;
 			}
 			return;
 		}
@@ -1502,7 +1510,11 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			if (c.z != 0)
 			{
-				c.pc += c.next_byte();
+				c.pc += i8(c.next_byte()) - 1;
+			}
+			else
+			{
+				c.pc++;
 			}
 			return;
 		}
@@ -1513,7 +1525,11 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			if (c.n != 0)
 			{
-				c.pc += c.next_byte();
+				c.pc += i8(c.next_byte()) - 1;
+			}
+			else
+			{
+				c.pc++;
 			}
 			return;
 		}
@@ -1524,7 +1540,11 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			if (c.z == 0)
 			{
-				c.pc += c.next_byte();
+				c.pc += i8(c.next_byte()) - 1;
+			}
+			else
+			{
+				c.pc++;
 			}
 			return;
 		}
@@ -1535,7 +1555,11 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			if (c.n == 0)
 			{
-				c.pc += c.next_byte();
+				c.pc += i8(c.next_byte()) - 1;
+			}
+			else
+			{
+				c.pc++;
 			}
 			return;
 		}
@@ -1546,7 +1570,11 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			if (c.v == 0)
 			{
-				c.pc += c.next_byte();
+				c.pc += i8(c.next_byte()) - 1;
+			}
+			else
+			{
+				c.pc++;
 			}
 			return;
 		}
@@ -1557,7 +1585,11 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		{
 			if (c.v != 0)
 			{
-				c.pc += c.next_byte();
+				c.pc += i8(c.next_byte()) - 1;
+			}
+			else
+			{
+				c.pc++;
 			}
 			return;
 		}
@@ -1636,7 +1668,7 @@ std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 		op::NOP,
 		[](cpu& c)
 		{
-			(void*)(&c);
+			c.a = c.a;
 			return;
 		}
 	},

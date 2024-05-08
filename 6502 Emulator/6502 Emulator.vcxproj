@@ -144,6 +144,7 @@
     <ClCompile Include="6502 Emulator.cpp" />
     <ClCompile Include="compiler_6502.cpp" />
     <ClCompile Include="compiler_instructios.cpp" />
+    <ClCompile Include="compiler_ops_for_labels.cpp" />
     <ClCompile Include="ops_6502.cpp" />
     <ClCompile Include="vm_6502.cpp" />
   </ItemGroup>

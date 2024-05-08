@@ -1,0 +1,41 @@
+#include "compiler_6502.h"
+
+std::map<std::string, u8> compiler::ops_that_can_use_labels =
+{
+	{
+		"JMP",
+		3
+	},
+	{
+		"BCC",
+		2
+	},
+	{
+		"BCS",
+		2
+	},
+	{
+		"BEQ",
+		2
+	},
+	{
+		"BMI",
+		2
+	},
+	{
+		"BNE",
+		2
+	},
+	{
+		"BPL",
+		2
+	},
+	{
+		"BVC",
+		2
+	},
+	{
+		"BVS",
+		2
+	}
+};

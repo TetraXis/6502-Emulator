@@ -82,7 +82,7 @@ void compiler::print_errors() const
 	std::cout << '\n';
 	for (const auto& [error] : errors)
 	{
-		std::cout << "!> " << error << '\n';
+		std::cout << "!> " << error << '\n\n';
 	}
 	std::cout << '\n';
 }
@@ -96,7 +96,7 @@ void compiler::print_warnings() const
 	std::cout << '\n';
 	for (const auto& [warning] : warnings)
 	{
-		std::cout << " > " << warning << '\n';
+		std::cout << " > " << warning << '\n\n';
 	}
 	std::cout << '\n';
 }
@@ -257,6 +257,9 @@ void compiler::resolve_defines()
 			name = "\\b" + define_match.str(1) + "\\b";
 			value = define_match.str(2);
 
+			// fixing string so formatting would not kick in for "$01"
+			value = std::regex_replace(value, std::regex("(\\$[a-fA-F\\d]+)"), "$$$1");
+
 			for (auto it_2 = it + 1; it_2 != source_lines.end(); ++it_2)
 			{
 				it_2->text = std::regex_replace(it_2->text, std::regex(name), value);
@@ -268,6 +271,9 @@ void compiler::resolve_defines()
 		{
 			name = define_match.str(1);
 			value = define_match.str(2);
+
+			// fixing string so formatting would not kick in for "$01"
+			value = std::regex_replace(value, std::regex("(\\$[a-fA-F\\d]+)"), "$$$1");
 
 			for (auto it_2 = it + 1; it_2 != source_lines.end(); ++it_2)
 			{

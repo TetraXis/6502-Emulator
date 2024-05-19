@@ -9,6 +9,8 @@
 #include "vm_6502.h"
 #include "timer.h"
 
+#define DEBUG_6502_COMP
+
 // NOTE: Labels only can be used by standard branch ops
 
 constexpr u8 ABSENT = 0x00; // for indicating that addressing variant is absent
@@ -63,14 +65,14 @@ struct compiler
 {
 	static std::map<std::string, op_modes>		op_map;
 	//              op           byte size
-	static std::map<std::string, u8>						ops_that_can_use_labels;
+	static std::map<std::string, u8>			ops_that_can_use_labels;
 
 	//       name         addr
-	std::map<std::string, u64>	labels = {};
+	std::map<std::string, u16>	labels = {};
 	std::vector<source_line>	source_lines = {};
 	source_line*				active_line = nullptr;
 	// counts bytes before encoutering a label
-	u64							parsed_bytes = 0;
+	u16							parsed_bytes = 0;
 	
 	std::vector<msg>			warnings = {};
 	std::vector<msg>			errors = {};
@@ -103,10 +105,10 @@ struct compiler
 namespace mask
 {
 	// preprocessor
-	static std::regex STRONG_DEFINE("^\\s*DEFINE\\s+\"(.*)\"\\s+\"(.*)\"\\s*$");
+	static std::regex STRONG_DEFINE("^\\s*#DEFINE\\s+\"(.*)\"\\s+\"(.*)\"\\s*$");
 	// group 1: name
 	// group 2: value
-	static std::regex WEAK_DEFINE("^\\s*DEFINE\\s+([_a-zA-Z]\\w*)\\s+(.+)\\s*$");
+	static std::regex WEAK_DEFINE("^\\s*#DEFINE\\s+([_a-zA-Z]\\w*)\\s+(.+)\\s*$");
 	// group 1: name
 	// group 2: value
 	static std::regex WORD("[_a-zA-Z]\\w*");
@@ -121,7 +123,7 @@ namespace mask
 	static std::regex HEX("^\\$([\\da-fA-F]+)$");
 	static std::regex DEC("^(\\d+)$");
 	static std::regex BIN("^\\%([01]+)$");
-	static std::regex COMPLEX("([$%]?[\\da-fA-F]+)\\s*([+-])\\s*([$%]?[\\da-fA-F]+)$");
+	static std::regex COMPLEX("#?([$%]?[\\da-fA-F]+)\\s*([+-])\\s*([$%]?[\\da-fA-F]+)$");
 	// group 1: left number
 	// group 2: operator
 	// group 3: right number
@@ -135,17 +137,15 @@ namespace mask
 	// labels
 	static std::regex LABEL_DECL("^\\s*([_a-zA-Z]\\w*)\\s*:?\\s*$");
 	// group 1: label
-	static std::regex LABEL_IN_USE("^([_a-zA-Z]\\w*)(\\s*([+-])\\s*([%$]?[\\da-fA-F]+))?$");
+	static std::regex LABEL_IN_USE("^([_a-zA-Z]\\w*)$");
 	// group 1: label
-	// group 3: sign
-	// group 4: value
 
 	// address modes
 	// group 1: addr value
 	static std::regex IM("^#([%$]?[\\da-fA-F]+)$");
 	static std::regex ABS("^([%$]?[\\da-fA-F]+)$"); // absolute, zero page or relative
-	static std::regex ABS_X("^([%$]?[\\da-fA-F]+)\\s+,\\s+[Xx]$"); // absolute, x or zero page, x
-	static std::regex ABS_Y("^([%$]?[\\da-fA-F]+)\\s+,\\s+[Yy]$"); // absolute, y or zero page, y
+	static std::regex ABS_X("^([%$]?[\\da-fA-F]+)\\s*,\\s*[Xx]$"); // absolute, x or zero page, x
+	static std::regex ABS_Y("^([%$]?[\\da-fA-F]+)\\s*,\\s*[Yy]$"); // absolute, y or zero page, y
 	static std::regex IN_X("^\\s*\\(\\s*([%$]?[\\da-fA-F]+)\\s*,\\s*[Xx]\\s*\\)$"); // indirect, x
 	static std::regex IN_Y("^\\s*\\(\\s*([%$]?[\\da-fA-F]+)\\s*\\)\\s*,\\s*[Yy]$"); // indirect, y
 	// BRK and JMP are edge cases

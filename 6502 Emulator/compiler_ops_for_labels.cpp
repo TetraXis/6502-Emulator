@@ -3,39 +3,43 @@
 std::map<std::string, u8> compiler::ops_that_can_use_labels =
 {
 	{
-		"JMP",
-		3
+		"JSR",	// op name
+		3		// byte size
 	},
 	{
-		"BCC",
-		2
+		"JMP",	// op name
+		3	  	// byte size
 	},
 	{
-		"BCS",
-		2
+		"BCC",	// op name
+		2	  	// byte size
 	},
 	{
-		"BEQ",
-		2
+		"BCS",	// op name
+		2	  	// byte size
 	},
 	{
-		"BMI",
-		2
+		"BEQ",	// op name
+		2	  	// byte size
 	},
 	{
-		"BNE",
-		2
+		"BMI",	// op name
+		2	  	// byte size
 	},
 	{
-		"BPL",
-		2
+		"BNE",	// op name
+		2	  	// byte size
 	},
 	{
-		"BVC",
-		2
+		"BPL",	// op name
+		2	  	// byte size
 	},
 	{
-		"BVS",
-		2
+		"BVC",	// op name
+		2	  	// byte size
+	},
+	{
+		"BVS",	// op name
+		2	  	// byte size
 	}
 };

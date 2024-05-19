@@ -58,6 +58,9 @@
     <Text Include="compilation_routine.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
+    <Text Include="compiler_problems.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="output.bin">

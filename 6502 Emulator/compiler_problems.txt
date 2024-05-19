@@ -1,0 +1,22 @@
+1. Incorrect parsing of complex numbers within immediate addressing mode
+
+CMP #MASS_MAX - 1
+
+status: SOLVED
+
+
+2. Incorect byte counting for labes. 
+	It seeems only problem is lable decl. is after label use
+
+Realtive label use: "BAD_INPUT"
+Bytes before label use: 32	???
+Byte address of destination: 27	
+Relative address: -6
+
+status: SOLVED
+
+3. BRK is not supported
+status: active
+
+4. JMP is not supported
+status: active

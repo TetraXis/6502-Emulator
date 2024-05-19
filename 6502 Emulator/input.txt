@@ -1,12 +1,42 @@
-DEFINE VAR $01
+; “ри толст€ка решили поспорить: кто из них самый т€желый. 
+; ѕосле взвешивани€ оказалось, что их масса соответственно 
+; M1, M2 и M3 килограмм. —читаетс€, что масса толст€ка должна 
+; быть не менее 31 и не более 242 килограмм.
 
-LDX #10
+; ѕомогите определить массу самого т€желого из них, либо вы€снить, 
+; что была допущена ошибка при взвешивании.
 
-LOOP:
-	INC VAR
-	INC VAR + 1
-	INC VAR + 2
-	INC VAR + 3
-	INC VAR + 4
-	DEX
-	BNE LOOP
+#DEFINE OUTPUT	$10
+#DEFINE INPUT_1 $00
+#DEFINE INPUT_2 $01
+#DEFINE INPUT_3 $02
+
+#DEFINE MASS_MIN 31
+#DEFINE MASS_MAX 242
+
+; setting input
+LDA #40
+STA INPUT_1
+LDA #40
+STA INPUT_2
+LDA #100
+STA INPUT_3
+
+; checking if all measurements were correct
+LDA INPUT_1
+CMP #MASS_MIN
+BCC BAD_INPUT
+CMP #MASS_MAX - 1
+BCS BAD_INPUT
+
+
+LDA #0
+STA OUTPUT
+RTS
+
+
+
+BAD_INPUT:
+	LDA #1
+	STA OUTPUT
+	RTS

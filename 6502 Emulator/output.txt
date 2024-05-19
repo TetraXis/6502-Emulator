@@ -1,0 +1,44 @@
+0x200: a9	LDA
+0x201: a	#10
+0x202: 85	STA
+0x203: 0	INPUT_1
+0x204: a9	LDA
+0x205: 28	#40
+0x206: 85	STA
+0x207: 1	INPUT_2
+0x208: a9	LDA
+0x209: 64	#100
+0x20a: 85	STA
+0x20b: 2	INPUT_3
+0x20c: a5	LDA
+0x20d: 0	INPUT_1
+0x20e: c9	CMP
+0x20f: 1f	#31
+0x210: 90	BCC
+0x211: fa	#-6	!!! Why -6
+0x212: c5	CMP, zp !!!ERROR
+0x213: f1	241
+0x214: b0	BCS
+0x215: f4
+0x216: a9
+0x217: 0
+0x218: 85
+0x219: 10
+0x21a: 60
+0x21b: a9
+0x21c: BAD_INPUT
+0x21c: 1
+0x21d: 85
+0x21e: 10
+0x21f: 60
+
+Realtive label use: "BAD_INPUT"
+Bytes before label use: 32	???
+Byte address of destination: 27	???
+Relative address: -6
+-6
+Realtive label use: "BAD_INPUT"
+Bytes before label use: 38
+Byte address of destination: 27
+Relative address: -12
+-12

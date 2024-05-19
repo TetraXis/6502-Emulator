@@ -90,7 +90,9 @@ u8 cpu::pull()
 
 void cpu::exe_op(u8 op)
 {
-	//std::cout << std::hex << "executing " << u16(op) << '\n';
+#ifdef DEBUG_6502
+	std::cout << std::hex << "executing " << u16(op) << '\n';
+#endif //DEBUG_6502
 	if (op_map.find(op) == op_map.end())
 	{
 		std::cerr << std::hex << "Unknown operator \'" << u16(op) << "\' at \'" << pc << "\'\n";

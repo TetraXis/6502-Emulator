@@ -5,6 +5,8 @@
 #include <functional>
 #include <Windows.h>
 
+#define DEBUG_6502
+
 // http://www.6502.org/users/obelisk/6502/index.html
 // http://www.6502.org/source/
 // https://skilldrick.github.io/easy6502/

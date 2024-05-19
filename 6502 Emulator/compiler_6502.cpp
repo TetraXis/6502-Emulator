@@ -34,7 +34,6 @@ msg msg::wrn(const source_line& line, const std::string& type, const std::string
 	return result;
 }
 
-
 compiler::compiler()
 {
 
@@ -66,9 +65,13 @@ bool compiler::read_txt(const std::string& path)
 void compiler::write_txt(const std::string& path) const
 {
 	std::ofstream fout(path);
+	u16 addr = 0x0200;
 	for (const source_line& line : source_lines)
 	{
-		fout << line.text << '\n';
+		for (u8 i = 0; i < line.byte_size; i++)
+		{
+			fout << "0x" << std::hex << addr++ << ": " << u16(line.bytes[i]) << '\n';
+		}
 	}
 	fout.close();
 }
@@ -82,7 +85,7 @@ void compiler::print_errors() const
 	std::cout << '\n';
 	for (const auto& [error] : errors)
 	{
-		std::cout << "!> " << error << '\n\n';
+		std::cout << "!> " << error << "\n\n";
 	}
 	std::cout << '\n';
 }
@@ -96,7 +99,7 @@ void compiler::print_warnings() const
 	std::cout << '\n';
 	for (const auto& [warning] : warnings)
 	{
-		std::cout << " > " << warning << '\n\n';
+		std::cout << " > " << warning << "\n\n";
 	}
 	std::cout << '\n';
 }
@@ -279,7 +282,7 @@ void compiler::resolve_defines()
 			{
 				it_2->text = std::regex_replace(it_2->text, std::regex(name), value);
 			}
-
+			
 			it = source_lines.erase(it);
 		}
 		else
@@ -332,7 +335,6 @@ bool compiler::parse_active_line()
 {
 	if (active_line->parsed)
 	{
-		parsed_bytes += active_line->byte_size;
 		return true;
 	}
 
@@ -429,9 +431,10 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	// if addr is complex "ADDR + 1" or "ADDR - 1"
 	if (std::regex_match(addr, addr_match, mask::COMPLEX))
 	{
-		std::string label = addr_match.str(1); // left number
-		std::string sign = addr_match.str(2);
-		std::string value = addr_match.str(3); // right number
+		bool implied = addr[0] == '#';
+		label = addr_match.str(1); // left number
+		sign = addr_match.str(2);
+		value = addr_match.str(3); // right number
 
 		if (sign == "+")
 		{
@@ -446,100 +449,75 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 			errors.push_back(msg::err(*active_line, "Incorrect operator for complex address", "\"" + sign + "\" is not a valid operator for complex address"));
 			return false;
 		}
+		if (implied)
+		{
+			addr = "#" + addr;
+		}
 	}
-
+	
 	// label in use
 	if (std::regex_match(addr, addr_match, mask::LABEL_IN_USE))
 	{
 		label = addr_match.str(1);
-		sign = addr_match.str(3);
-		value = addr_match.str(4);
 
 		if (labels.find(label) != labels.end())
 		{
-			if (labels.at(label) != ABSENT)
+			if (ops_that_can_use_labels.find(op) == ops_that_can_use_labels.end())
 			{
-				if (ops_that_can_use_labels.find(op) == ops_that_can_use_labels.end())
+				errors.push_back(msg::err(*active_line, "Label misuse", "Opeator \"" + op + "\" can not be used with labels"));
+				return false;
+			}
+
+			// ops that use relative addressing
+			if (ops_that_can_use_labels.at(op) == 2)
+			{
+				if (labels.at(label) == ABSENT)
 				{
-					errors.push_back(msg::err(*active_line, "Label misuse", "Opeator \"" + op + "\" can not be used with labels"));
+					active_line->unresolved_label = true;
+					active_line->byte_size = 2;
+					return true;
+				}
+				i32 relative_addr = labels.at(label) - parsed_bytes - 1;
+
+#ifdef DEBUG_6502_COMP
+				std::cout << "Realtive label use: \"" << label << "\"\n";
+				std::cout << "Bytes before label use: " << parsed_bytes << "\n";
+				std::cout << "Byte address of destination: " << labels.at(label) << "\n";
+				std::cout << "Relative address: " << relative_addr << "\n";
+#endif
+
+
+				if (relative_addr < -128 || relative_addr > 127)
+				{
+					errors.push_back(msg::err(*active_line, "Brach relative jump is too large", "Brach relative jumps can range in [-128; 127]"));
 					return false;
 				}
 
-				// ops that use relative addressing
-				if (ops_that_can_use_labels.at(op) == 2)
+				active_line->parsed = true;
+				active_line->unresolved_label = false;
+				active_line->byte_size = 2;
+				active_line->bytes[0] = active_line->parsed_op.imp;
+				active_line->bytes[1] = i8(relative_addr);
+				std::cout << i16(relative_addr) << '\n';
+				return true;
+			}
+			else // ops that use absolute addressing
+			{
+				if (labels.at(label) == ABSENT)
 				{
-					if (sign != "" || value != "")
-					{
-						errors.push_back(msg::err(*active_line, "Label misuse", "Opeator that use relative addressing modes can not dereference [LABEL +/- VALUE}"));
-						return false;
-					}
-
-					i32 relative_addr = labels.at(label) - parsed_bytes - 1;
-					if (relative_addr < -128 || relative_addr > 127)
-					{
-						errors.push_back(msg::err(*active_line, "Brach relative jump is too large", "Brach relative jumps can range in [-128; 127]"));
-						return false;
-					}
-
-					active_line->parsed = true;
-					active_line->unresolved_label = false;
-					active_line->byte_size = 2;
-					active_line->bytes[0] = active_line->parsed_op.imp;
-					active_line->bytes[1] = char(relative_addr);
+					active_line->unresolved_label = true;
+					active_line->byte_size = 3;
 					return true;
 				}
-				else // ops that use absolute addressing
-				{
-					parsed_addr = labels.at(label);
 
-					if (sign != "")
-					{
+				parsed_addr = labels.at(label) + 0x0200;
 
-						if (sign == "+")
-						{
-							if (value == "")
-							{
-								errors.push_back(msg::err(*active_line, "Missing operand", "Operator \"+\" requirers two operands"));
-								return false;
-							}
-							parsed_addr += parse_number(value);
-
-							active_line->parsed = true;
-							active_line->unresolved_label = false;
-							active_line->byte_size = 3;
-							active_line->bytes[0] = active_line->parsed_op.abs;
-							active_line->bytes[1] = parsed_addr & 0xFF;
-							active_line->bytes[2] = parsed_addr >> BIT_SIZE;
-							return true;
-						}
-						else if (sign == "-")
-						{
-							if (value == "")
-							{
-								errors.push_back(msg::err(*active_line, "Missing operand", "Operator \"-\" requirers two operands"));
-								return false;
-							}
-							parsed_addr -= parse_number(value);
-
-							active_line->parsed = true;
-							active_line->unresolved_label = false;
-							active_line->byte_size = 3;
-							active_line->bytes[0] = active_line->parsed_op.abs;
-							active_line->bytes[1] = parsed_addr & 0xFF;
-							active_line->bytes[2] = parsed_addr >> BIT_SIZE;
-							return true;
-						}
-						else
-						{
-							errors.push_back(msg::err(*active_line, "Unknown operator", "Could not parse \"" + sign + "\" as valid operator"));
-							return false;
-						}
-					}
-				}
-			}
-			else
-			{
-				active_line->unresolved_label = true;
+				active_line->parsed = true;
+				active_line->unresolved_label = false;
+				active_line->byte_size = 3;
+				active_line->bytes[0] = active_line->parsed_op.abs;
+				active_line->bytes[1] = parsed_addr & 0xFF;
+				active_line->bytes[2] = parsed_addr >> BIT_SIZE;
 				return true;
 			}
 		}

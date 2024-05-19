@@ -156,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="compilation_routine.txt" />
+    <Text Include="compiler_problems.txt" />
     <Text Include="input.txt" />
     <Text Include="output.txt" />
   </ItemGroup>

@@ -13,6 +13,7 @@ int main()
 	compiler cmplr;
 	if (cmplr.compile_and_build("input.txt", cpu_0))
 	{
+		//cmplr.write_txt("output.txt");
 		cpu_0.start();
 		rm.write_to("memory_shapshot.bin");
 	}

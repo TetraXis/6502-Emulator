@@ -11,7 +11,7 @@
 #define GET_INDIRECT_ADDR_Y u8 addr = u8(c.next_byte());
 #define CONCAT_ADDR (c.mem[addr] | ((c.mem[addr + 1]) << BIT_SIZE))
 
-std::map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
+std::unordered_map<u8, std::function<void(cpu& cpu_ref)>> cpu::op_map =
 {
 	{
 		op::LDA_IM,

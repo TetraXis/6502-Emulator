@@ -2,10 +2,11 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <unordered_map>
 #include <functional>
 #include <Windows.h>
 
-#define DEBUG_6502
+//#define DEBUG_6502
 
 // http://www.6502.org/users/obelisk/6502/index.html
 // http://www.6502.org/source/
@@ -48,7 +49,7 @@ struct ram
 struct cpu
 {
 	ram& mem;	// attached ram
-	static std::map<u8, std::function<void(cpu& cpu_ref)>> op_map;	// operations ap
+	static std::unordered_map<u8, std::function<void(cpu& cpu_ref)>> op_map;	// operations ap
 
 	u16 pc;		// program counter
 	u8 sp;		// stack pointer

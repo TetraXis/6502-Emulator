@@ -20,3 +20,6 @@ status: active
 
 4. JMP is not supported
 status: active
+
+5. If labal is the first thing in the code. Label will be treated as unreferenced.
+status: SOLVED

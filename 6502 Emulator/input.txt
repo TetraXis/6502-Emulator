@@ -1,42 +1,15 @@
-; “ри толст€ка решили поспорить: кто из них самый т€желый. 
-; ѕосле взвешивани€ оказалось, что их масса соответственно 
-; M1, M2 и M3 килограмм. —читаетс€, что масса толст€ка должна 
-; быть не менее 31 и не более 242 килограмм.
-
-; ѕомогите определить массу самого т€желого из них, либо вы€снить, 
-; что была допущена ошибка при взвешивании.
-
-#DEFINE OUTPUT	$10
-#DEFINE INPUT_1 $00
-#DEFINE INPUT_2 $01
-#DEFINE INPUT_3 $02
-
-#DEFINE MASS_MIN 31
-#DEFINE MASS_MAX 242
-
-; setting input
-LDA #40
-STA INPUT_1
-LDA #40
-STA INPUT_2
-LDA #100
-STA INPUT_3
-
-; checking if all measurements were correct
-LDA INPUT_1
-CMP #MASS_MIN
-BCC BAD_INPUT
-CMP #MASS_MAX - 1
-BCS BAD_INPUT
-
-
-LDA #0
-STA OUTPUT
-RTS
-
-
-
-BAD_INPUT:
-	LDA #1
-	STA OUTPUT
-	RTS
+LOOP_0:
+	LOOP_1:
+		LOOP_2:
+			; LOOP_3:
+			; 	;LOOP_4:
+			; 	;	INC 4
+			; 	;	BNE LOOP_4
+			; 	INC 3
+			; 	BNE LOOP_3
+			INC 2
+			BNE LOOP_2
+		INC 1
+		BNE LOOP_1
+	INC 0 ; 5 cycles
+	BNE LOOP_0 ; 3

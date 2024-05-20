@@ -317,7 +317,10 @@ void compiler::read_labels()
 			name = label_match.str(1);
 			if (op_map.find(name) == op_map.end())
 			{
-				labels[name] = ABSENT;
+				labels[name] = ABSENT_LABEL;
+#ifdef DEBUG_6502_COMP
+				std::cout << "Read a label declaration: \"" << name << "\".\n";
+#endif
 			}
 		}
 		else if (std::regex_match(line.text, label_match, mask::CORRECT_OP))
@@ -325,7 +328,10 @@ void compiler::read_labels()
 			name = label_match.str(2);
 			if (name != "" && op_map.find(name) == op_map.end())
 			{
-				labels[name] = ABSENT;
+				labels[name] = ABSENT_LABEL;
+#ifdef DEBUG_6502_COMP
+				std::cout << "Read a label declaration: \"" << name << "\".\n";
+#endif
 			}
 		}
 	}
@@ -352,6 +358,9 @@ bool compiler::parse_active_line()
 			if (label != "")
 			{
 				labels.at(label) = parsed_bytes;
+#ifdef DEBUG_6502_COMP
+				std::cout << "Calculated a label address: \"" << label << "\".\n";
+#endif
 			}
 
 			active_line->parsed = true;
@@ -460,6 +469,10 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	{
 		label = addr_match.str(1);
 
+#ifdef DEBUG_6502_COMP
+		std::cout << "Parsed a label in use: \"" << label << "\".\n";
+#endif
+
 		if (labels.find(label) != labels.end())
 		{
 			if (ops_that_can_use_labels.find(op) == ops_that_can_use_labels.end())
@@ -471,19 +484,22 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 			// ops that use relative addressing
 			if (ops_that_can_use_labels.at(op) == 2)
 			{
-				if (labels.at(label) == ABSENT)
+				if (labels.at(label) == ABSENT_LABEL)
 				{
 					active_line->unresolved_label = true;
 					active_line->byte_size = 2;
+#ifdef DEBUG_6502_COMP
+					std::cout << "Parsed a relative label in use that was not yet declared: \"" << label << "\".\n";
+#endif
 					return true;
 				}
 				i32 relative_addr = labels.at(label) - parsed_bytes - 1;
 
 #ifdef DEBUG_6502_COMP
-				std::cout << "Realtive label use: \"" << label << "\"\n";
-				std::cout << "Bytes before label use: " << parsed_bytes << "\n";
-				std::cout << "Byte address of destination: " << labels.at(label) << "\n";
-				std::cout << "Relative address: " << relative_addr << "\n";
+				std::cout << "Realtive label use: \"" << label << "\".\n";
+				std::cout << "Bytes before label use: " << parsed_bytes << ".\n";
+				std::cout << "Byte address of destination: " << labels.at(label) << ".\n";
+				std::cout << "Relative address: " << relative_addr << ".\n";
 #endif
 
 
@@ -498,12 +514,11 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 				active_line->byte_size = 2;
 				active_line->bytes[0] = active_line->parsed_op.imp;
 				active_line->bytes[1] = i8(relative_addr);
-				std::cout << i16(relative_addr) << '\n';
 				return true;
 			}
 			else // ops that use absolute addressing
 			{
-				if (labels.at(label) == ABSENT)
+				if (labels.at(label) == ABSENT_LABEL)
 				{
 					active_line->unresolved_label = true;
 					active_line->byte_size = 3;
@@ -531,7 +546,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	// implied
 	if (addr == "")
 	{
-		if (active_line->parsed_op.imp == ABSENT)
+		if (active_line->parsed_op.imp == ABSENT_OP)
 		{
 			errors.push_back(msg::err(*active_line, "Missing addressing mode", "Operator \"" + op + "\" does not have implied addressing mode"));
 			return false;
@@ -545,7 +560,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	// immediate
 	if (std::regex_match(addr, addr_match, mask::IM))
 	{
-		if (active_line->parsed_op.im == ABSENT)
+		if (active_line->parsed_op.im == ABSENT_OP)
 		{
 			errors.push_back(msg::err(*active_line, "Missing addressing mode", "Operator \"" + op + "\" does not have immediate addressing mode"));
 			return false;
@@ -563,7 +578,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	{
 		parsed_addr = parse_number(addr_match.str(1));
 
-		if (active_line->parsed_op.zp != ABSENT && parsed_addr <= 0xFF)
+		if (active_line->parsed_op.zp != ABSENT_OP && parsed_addr <= 0xFF)
 		{
 			active_line->byte_size = 2;
 			active_line->bytes[0] = active_line->parsed_op.zp;
@@ -571,7 +586,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 			active_line->parsed = true;
 			return true;
 		}
-		if (active_line->parsed_op.abs != ABSENT)
+		if (active_line->parsed_op.abs != ABSENT_OP)
 		{
 			active_line->byte_size = 3;
 			active_line->bytes[0] = active_line->parsed_op.abs;
@@ -580,7 +595,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 			active_line->parsed = true;
 			return true;
 		}
-		if (active_line->parsed_op.zp != ABSENT)
+		if (active_line->parsed_op.zp != ABSENT_OP)
 		{
 			active_line->byte_size = 2;
 			active_line->bytes[0] = active_line->parsed_op.zp;
@@ -598,7 +613,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	{
 		parsed_addr = parse_number(addr_match.str(1));
 
-		if (active_line->parsed_op.zp_x != ABSENT && parsed_addr <= 0xFF)
+		if (active_line->parsed_op.zp_x != ABSENT_OP && parsed_addr <= 0xFF)
 		{
 			active_line->byte_size = 2;
 			active_line->bytes[0] = active_line->parsed_op.zp_x;
@@ -606,7 +621,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 			active_line->parsed = true;
 			return true;
 		}
-		if (active_line->parsed_op.abs_x != ABSENT)
+		if (active_line->parsed_op.abs_x != ABSENT_OP)
 		{
 			active_line->byte_size = 3;
 			active_line->bytes[0] = active_line->parsed_op.abs_x;
@@ -615,7 +630,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 			active_line->parsed = true;
 			return true;
 		}
-		if (active_line->parsed_op.zp_x != ABSENT)
+		if (active_line->parsed_op.zp_x != ABSENT_OP)
 		{
 			active_line->byte_size = 2;
 			active_line->bytes[0] = active_line->parsed_op.zp_x;
@@ -633,7 +648,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	{
 		parsed_addr = parse_number(addr_match.str(1));
 
-		if (active_line->parsed_op.zp_y != ABSENT && parsed_addr <= 0xFF)
+		if (active_line->parsed_op.zp_y != ABSENT_OP && parsed_addr <= 0xFF)
 		{
 			active_line->byte_size = 2;
 			active_line->bytes[0] = active_line->parsed_op.zp_y;
@@ -641,7 +656,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 			active_line->parsed = true;
 			return true;
 		}
-		if (active_line->parsed_op.abs_y != ABSENT)
+		if (active_line->parsed_op.abs_y != ABSENT_OP)
 		{
 			active_line->byte_size = 3;
 			active_line->bytes[0] = active_line->parsed_op.abs_y;
@@ -650,7 +665,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 			active_line->parsed = true;
 			return true;
 		}
-		if (active_line->parsed_op.zp_y != ABSENT)
+		if (active_line->parsed_op.zp_y != ABSENT_OP)
 		{
 			active_line->byte_size = 2;
 			active_line->bytes[0] = active_line->parsed_op.zp_y;
@@ -666,7 +681,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	// indirect, x
 	if (std::regex_match(addr, addr_match, mask::IN_X))
 	{
-		if (active_line->parsed_op.in_x == ABSENT)
+		if (active_line->parsed_op.in_x == ABSENT_OP)
 		{
 			errors.push_back(msg::err(*active_line, "Missing addressing mode", "Operator \"" + op + "\" does not have (indirect, x) addressing mode"));
 			return false;
@@ -682,7 +697,7 @@ bool compiler::resolve_addr_for_op(std::string addr, const std::string& op)
 	// indirect, y
 	if (std::regex_match(addr, addr_match, mask::IN_Y))
 	{
-		if (active_line->parsed_op.in_y == ABSENT)
+		if (active_line->parsed_op.in_y == ABSENT_OP)
 		{
 			errors.push_back(msg::err(*active_line, "Missing addressing mode", "Operator \"" + op + "\" does not have (indirect, y) addressing mode"));
 			return false;

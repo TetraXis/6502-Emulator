@@ -9,25 +9,26 @@
 #include "vm_6502.h"
 #include "timer.h"
 
-#define DEBUG_6502_COMP
+// #define DEBUG_6502_COMP
 
 // NOTE: Labels only can be used by standard branch ops
 
-constexpr u8 ABSENT = 0x00; // for indicating that addressing variant is absent
+constexpr u8 ABSENT_OP = 0x00; // for indicating that addressing variant is absent
 // BRK abd JMP should be handled individually
+constexpr u16 ABSENT_LABEL = 0xFFFF; // for label that was declared, but its address was not yet calculated
 
 struct op_modes
 {
-	u8 imp		= ABSENT;	// implied
-	u8 im		= ABSENT;	// immediate
-	u8 zp		= ABSENT;	// zero page or relative
-	u8 zp_x		= ABSENT;	// zero page, x
-	u8 zp_y		= ABSENT;	// zero page, y
-	u8 abs		= ABSENT;	// absolute
-	u8 abs_x	= ABSENT;	// absolute, x
-	u8 abs_y	= ABSENT;	// absolute, y
-	u8 in_x		= ABSENT;	// indirect, x
-	u8 in_y		= ABSENT;	// indirect, y
+	u8 imp		= ABSENT_OP;	// implied
+	u8 im		= ABSENT_OP;	// immediate
+	u8 zp		= ABSENT_OP;	// zero page or relative
+	u8 zp_x		= ABSENT_OP;	// zero page, x
+	u8 zp_y		= ABSENT_OP;	// zero page, y
+	u8 abs		= ABSENT_OP;	// absolute
+	u8 abs_x	= ABSENT_OP;	// absolute, x
+	u8 abs_y	= ABSENT_OP;	// absolute, y
+	u8 in_x		= ABSENT_OP;	// indirect, x
+	u8 in_y		= ABSENT_OP;	// indirect, y
 };
 
 enum struct addr_mode : u8
@@ -63,12 +64,12 @@ constexpr u64 MAX_PARSE_PASSES = 16;
 
 struct compiler
 {
-	static std::map<std::string, op_modes>		op_map;
+	static std::unordered_map<std::string, op_modes>		op_map;
 	//              op           byte size
-	static std::map<std::string, u8>			ops_that_can_use_labels;
+	static std::unordered_map<std::string, u8>			ops_that_can_use_labels;
 
 	//       name         addr
-	std::map<std::string, u16>	labels = {};
+	std::unordered_map<std::string, u16>	labels = {};
 	std::vector<source_line>	source_lines = {};
 	source_line*				active_line = nullptr;
 	// counts bytes before encoutering a label

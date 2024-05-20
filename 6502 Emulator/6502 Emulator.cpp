@@ -13,8 +13,12 @@ int main()
 	compiler cmplr;
 	if (cmplr.compile_and_build("input.txt", cpu_0))
 	{
+		timer tm;
+		tm.start();
 		//cmplr.write_txt("output.txt");
 		cpu_0.start();
+		tm.stop();
+		std::cout << "CPU running time: " << tm.elapsed_seconds() << "\n";
 		rm.write_to("memory_shapshot.bin");
 	}
 

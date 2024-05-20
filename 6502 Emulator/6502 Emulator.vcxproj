@@ -155,6 +155,7 @@
     <ClInclude Include="vm_6502.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="benchmarks.txt" />
     <Text Include="compilation_routine.txt" />
     <Text Include="compiler_problems.txt" />
     <Text Include="input.txt" />

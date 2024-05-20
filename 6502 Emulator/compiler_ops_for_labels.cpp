@@ -1,6 +1,6 @@
 #include "compiler_6502.h"
 
-std::map<std::string, u8> compiler::ops_that_can_use_labels =
+std::unordered_map<std::string, u8> compiler::ops_that_can_use_labels =
 {
 	{
 		"JSR",	// op name

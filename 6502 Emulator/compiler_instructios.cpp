@@ -695,7 +695,7 @@ std::unordered_map<std::string, op_modes> compiler::op_map =
 	{
 		"CLC",				// name
 		{
-			op::BCS,		// implied
+			op::CLC,		// implied
 			ABSENT_OP,			// immediate
 			ABSENT_OP,			// zero page or relative
 			ABSENT_OP,			// zero page, x

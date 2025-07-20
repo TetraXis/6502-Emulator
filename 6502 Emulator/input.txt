@@ -1,15 +1,44 @@
-LOOP_0:
-	LOOP_1:
-		LOOP_2:
-			; LOOP_3:
-			; 	;LOOP_4:
-			; 	;	INC 4
-			; 	;	BNE LOOP_4
-			; 	INC 3
-			; 	BNE LOOP_3
-			INC 2
-			BNE LOOP_2
-		INC 1
-		BNE LOOP_1
-	INC 0 ; 5 cycles
-	BNE LOOP_0 ; 3
+; Load first N Fibonacci into zero page
+
+#DEFINE AMOUNT 12
+#DEFINE TEMP_STORAGE_ADDR $FF
+
+; first two Fibonacci numbers
+LDA #0     
+STA $00				; F0 = 0
+LDA #1     
+STA $01				; F1 = 1
+
+; Setup loop counter (X = current index)
+LDX #2				; start at index 2
+
+loop:
+	; Calculate offset for F(n-2)
+
+	TXA				; X -> A
+	SEC				; set carry for subtraction
+	SBC #2			; A = X-2
+	TAY				; Y = offset for F(n-2)
+	
+	; Load F(n-2) and F(n-1)
+
+	LDA $0000, Y	; load F(n-2) (absolute,Y addressing)
+	STA TEMP_STORAGE_ADDR			; temp store F(n-2)
+	INY				; Y = X-1
+	LDA $0000, Y	; load F(n-1)
+	
+	; Calculate F(n) = F(n-1) + F(n-2)
+
+	CLC				; clear carry for addition
+	ADC TEMP_STORAGE_ADDR			; A = F(n-1) + F(n-2)
+	
+	; Store result in zero page
+
+	STA $00, X		; store at [$00 + X]
+
+	INX				; X++
+	CPX #AMOUNT		; compare with AMOUNT (0-based index)
+	BNE loop		; loop if X < AMOUNT
+
+LDA #0
+STA TEMP_STORAGE_ADDR
